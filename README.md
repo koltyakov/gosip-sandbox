@@ -7,7 +7,6 @@
   <img src="./assets/gosip.png" />
 </p>
 
-### Project repo: https://github.com/koltyakov/gosip
-### Documentation: https://go.spflow.com
+**Project repo: https://github.com/koltyakov/gosip**
 
-![Fluent Sample](./assets/fluent.gif)
+**Documentation: https://go.spflow.com**
