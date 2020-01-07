@@ -5,6 +5,8 @@ $SiteUrl = $ConfigJson.siteUrl;
 $Domain = ([System.Uri]$SiteUrl).Host -replace '^www\.';
 
 $SpAuthRead = "go run ./samples/powershell/main.go -configPath $ConfigPath";
+# Or which is better build and call .exe
+
 $Cookies = Invoke-Expression $SpAuthRead | ConvertFrom-Json;
 # For a long running processes assume cookie refreshing or proxying
 
