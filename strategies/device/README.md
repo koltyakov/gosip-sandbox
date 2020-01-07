@@ -21,7 +21,7 @@ Checkout [the code](./device.go).
   - SharePoint :: based on your application requirements
 - Manifest
   - oauth2AllowIdTokenImplicitFlow - true
-	- oauth2AllowImplicitFlow - true
+  - oauth2AllowImplicitFlow - true
 - etc. based on application needs
 
 ## Auth configuration and usage
@@ -31,8 +31,8 @@ package main
 
 import (
 	"fmt"
-  "log"
-  "os"
+	"log"
+	"os"
 
 	"github.com/koltyakov/gosip"
 	"github.com/koltyakov/gosip/api"
