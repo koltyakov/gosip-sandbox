@@ -6,6 +6,7 @@ $Domain = ([System.Uri]$SiteUrl).Host -replace '^www\.';
 
 $SpAuthRead = "go run ./samples/powershell/main.go -configPath $ConfigPath";
 $Cookies = Invoke-Expression $SpAuthRead | ConvertFrom-Json;
+# For a long running processes assume cookie refreshing or proxying
 
 $Session = New-Object Microsoft.PowerShell.Commands.WebRequestSession;
 
