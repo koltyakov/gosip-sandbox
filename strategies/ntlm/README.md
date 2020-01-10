@@ -23,7 +23,7 @@ func main() {
 		SiteURL:  os.Getenv("SPAUTH_SITEURL"),
 		Username: os.Getenv("SPAUTH_USERNAME"),
     Domain:   os.Getenv("SPAUTH_DOMAIN"),
-		Password: os.Getenv("SPAUTH_Password"),
+		Password: os.Getenv("SPAUTH_PASSWORD"),
 	}
 
 	client := &gosip.SPClient{AuthCnfg: authCnfg}
