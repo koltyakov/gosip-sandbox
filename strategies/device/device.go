@@ -1,3 +1,6 @@
+// Package device implements AAD Device Auth Flow
+// Amongst supported platform versions are:
+//   - SharePoint Online + Azure
 package device
 
 import (
@@ -7,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 
 	"github.com/Azure/go-autorest/autorest/adal"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
@@ -16,6 +20,13 @@ import (
 var tokenCache = map[string]*adal.ServicePrincipalToken{}
 
 // AuthCnfg - AAD Device Flow auth config structure
+/* On-Premises config sample:
+{
+  "siteUrl": "https://contoso.sharepoint.com/sites/test",
+	"clientId": "61367a97-562c-4372-a9ee-b35307abdd26",
+	"tenantId": "3f83fe32-29b2-488e-8c3f-c8b7a2e19a2f"
+}
+*/
 type AuthCnfg struct {
 	SiteURL  string `json:"siteUrl"`  // SPSite or SPWeb URL, which is the context target for the API calls
 	ClientID string `json:"clientId"` // Azure AD App Registration Client ID
@@ -35,7 +46,13 @@ func (c *AuthCnfg) ReadConfig(privateFile string) error {
 
 // WriteConfig writes private config with auth options
 func (c *AuthCnfg) WriteConfig(privateFile string) error {
-	return nil
+	config := &AuthCnfg{
+		SiteURL:  c.SiteURL,
+		ClientID: c.ClientID,
+		TenantID: c.TenantID,
+	}
+	file, _ := json.MarshalIndent(config, "", "  ")
+	return ioutil.WriteFile(privateFile, file, 0644)
 }
 
 // GetAuth authenticates, receives access token
@@ -45,6 +62,12 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 
 	// Check cached token per resource
 	token := tokenCache[resource]
+
+	// Check disk cache
+	if token == nil {
+		token, _ = c.getTokenDiskCache()
+	}
+
 	if token != nil {
 		// Return cached token if not expired
 		if !token.Token().IsExpired() {
@@ -52,14 +75,13 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 		}
 		// Expired, try to refresh
 		if err := token.Refresh(); err == nil {
+			// Cache refreshed token
+			c.cacheTokenToDisk(token)
 			// Return refreshed token
 			return token.Token().AccessToken, nil
 		}
 		// Failed to refresh, initiating for the device auth flow
 	}
-
-	// This is a sample, the prod Device auth flow would dump
-	// access and refresh tokens to disk to avoid device wizard if possible
 
 	config := auth.NewDeviceFlowConfig(c.ClientID, c.TenantID)
 	config.Resource = resource
@@ -68,6 +90,8 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	c.cacheTokenToDisk(token)
 
 	tokenCache[resource] = token
 	return token.Token().AccessToken, nil
@@ -91,4 +115,52 @@ func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error 
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 	return nil
+}
+
+// File system token caching helpers
+
+// CleanTokenCache removes token information
+func (c *AuthCnfg) CleanTokenCache() error {
+	tmpDir := filepath.Join(os.TempDir(), "gosip")
+	tokenCachePath := filepath.Join(tmpDir, c.ClientID)
+
+	delete(tokenCache, c.ClientID)
+
+	if err := os.Remove(tokenCachePath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// cacheTokenToDisk writes serialized token to temporary cache file
+func (c *AuthCnfg) cacheTokenToDisk(token *adal.ServicePrincipalToken) error {
+	tmpDir := filepath.Join(os.TempDir(), "gosip")
+	tokenCachePath := filepath.Join(tmpDir, c.ClientID)
+
+	tokenCache, err := token.MarshalJSON()
+	if err != nil {
+		return err
+	}
+	os.MkdirAll(tmpDir, os.ModePerm)
+	if err := ioutil.WriteFile(tokenCachePath, tokenCache, 0644); err != nil {
+		return err
+	}
+	return nil
+}
+
+// getTokenDiskCache reads token from temporary cache file
+func (c *AuthCnfg) getTokenDiskCache() (*adal.ServicePrincipalToken, error) {
+	tmpDir := filepath.Join(os.TempDir(), "gosip")
+	tokenCachePath := filepath.Join(tmpDir, c.ClientID)
+
+	tokenCache, err := ioutil.ReadFile(tokenCachePath)
+	if err != nil {
+		return nil, err
+	}
+	token := &adal.ServicePrincipalToken{}
+	if err := token.UnmarshalJSON(tokenCache); err != nil {
+		return nil, err
+	}
+	return token, nil
 }
