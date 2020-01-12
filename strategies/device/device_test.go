@@ -47,7 +47,7 @@ func TestAuthEdgeCases(t *testing.T) {
 	t.Run("ReadConfig/MissedConfig", func(t *testing.T) {
 		cnfg := &AuthCnfg{}
 		folderPath := u.ResolveCnfgPath("./tmp")
-		filePath := u.ResolveCnfgPath("./tmp/private.ntlm.malformed.json")
+		filePath := u.ResolveCnfgPath("./tmp/private.device.malformed.json")
 		os.MkdirAll(folderPath, os.ModePerm)
 		ioutil.WriteFile(filePath, []byte("not a json"), 0644)
 		if err := cnfg.ReadConfig(filePath); err == nil {

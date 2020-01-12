@@ -121,7 +121,7 @@ func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error 
 	return nil
 }
 
-// File system token caching helpers
+//=== File system token caching helpers ===//
 
 // CleanTokenCache removes token information
 func (c *AuthCnfg) CleanTokenCache() error {
