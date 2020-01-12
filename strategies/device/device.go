@@ -15,9 +15,13 @@ import (
 	"github.com/Azure/go-autorest/autorest/adal"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
 	"github.com/koltyakov/gosip"
+	"github.com/koltyakov/gosip/cpass"
 )
 
-var tokenCache = map[string]*adal.ServicePrincipalToken{}
+var (
+	tokenCache = map[string]*adal.ServicePrincipalToken{}
+	crypter    = cpass.Cpass("")
+)
 
 // AuthCnfg - AAD Device Flow auth config structure
 /* On-Premises config sample:
@@ -121,27 +125,27 @@ func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error 
 
 // CleanTokenCache removes token information
 func (c *AuthCnfg) CleanTokenCache() error {
-	tmpDir := filepath.Join(os.TempDir(), "gosip")
-	tokenCachePath := filepath.Join(tmpDir, c.ClientID)
+	tokenCachePath := c.getTokenCachePath()
 
 	delete(tokenCache, c.ClientID)
-
 	if err := os.Remove(tokenCachePath); err != nil {
 		return err
 	}
-
 	return nil
 }
 
 // cacheTokenToDisk writes serialized token to temporary cache file
 func (c *AuthCnfg) cacheTokenToDisk(token *adal.ServicePrincipalToken) error {
 	tmpDir := filepath.Join(os.TempDir(), "gosip")
-	tokenCachePath := filepath.Join(tmpDir, c.ClientID)
+	tokenCachePath := c.getTokenCachePath()
 
 	tokenCache, err := token.MarshalJSON()
 	if err != nil {
 		return err
 	}
+	tokenCacheE, _ := crypter.Encode(fmt.Sprintf("%s", tokenCache))
+	tokenCache = []byte(tokenCacheE)
+
 	os.MkdirAll(tmpDir, os.ModePerm)
 	if err := ioutil.WriteFile(tokenCachePath, tokenCache, 0644); err != nil {
 		return err
@@ -151,16 +155,24 @@ func (c *AuthCnfg) cacheTokenToDisk(token *adal.ServicePrincipalToken) error {
 
 // getTokenDiskCache reads token from temporary cache file
 func (c *AuthCnfg) getTokenDiskCache() (*adal.ServicePrincipalToken, error) {
-	tmpDir := filepath.Join(os.TempDir(), "gosip")
-	tokenCachePath := filepath.Join(tmpDir, c.ClientID)
+	tokenCachePath := c.getTokenCachePath()
 
 	tokenCache, err := ioutil.ReadFile(tokenCachePath)
 	if err != nil {
 		return nil, err
 	}
+	tokenCacheD, _ := crypter.Decode(fmt.Sprintf("%s", tokenCache))
+	tokenCache = []byte(tokenCacheD)
+
 	token := &adal.ServicePrincipalToken{}
 	if err := token.UnmarshalJSON(tokenCache); err != nil {
 		return nil, err
 	}
 	return token, nil
+}
+
+// getTokenCachePath gets local file system file path with token cache
+func (c *AuthCnfg) getTokenCachePath() string {
+	tmpDir := filepath.Join(os.TempDir(), "gosip")
+	return filepath.Join(tmpDir, c.GetStrategy()+"_"+c.ClientID)
 }
