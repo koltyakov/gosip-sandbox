@@ -35,6 +35,16 @@ func TestGettingDigest(t *testing.T) {
 	}
 }
 
+func TestRequest(t *testing.T) {
+	if !h.ConfigExists(cnfgPath) {
+		t.Skip("No auth config provided")
+	}
+	err := h.CheckRequest(&AuthCnfg{}, cnfgPath)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestAuthEdgeCases(t *testing.T) {
 
 	t.Run("ReadConfig/MissedConfig", func(t *testing.T) {
