@@ -24,7 +24,7 @@ var (
 )
 
 // AuthCnfg - AAD Device Flow auth config structure
-/* On-Premises config sample:
+/* Config sample:
 {
   "siteUrl": "https://contoso.sharepoint.com/sites/test",
 	"clientId": "61367a97-562c-4372-a9ee-b35307abdd26",
