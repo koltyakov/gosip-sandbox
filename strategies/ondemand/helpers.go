@@ -26,27 +26,36 @@ func (c *AuthCnfg) onDemandAuthFlow(initialCookies *Cookies) (*Cookies, error) {
 
 	ui.Load(c.SiteURL)
 
-	currentURL := ""
-	for strings.Index(strings.ToLower(currentURL), strings.ToLower(c.SiteURL)) == -1 {
-		newURL := ui.Eval("window.location.href").String()
-		if currentURL != newURL {
-			currentURL = newURL
-		}
-		time.Sleep(500 * time.Microsecond)
-	}
-	resp := ui.Send("Network.getCookies", nil)
-	if resp.Err() != nil {
-		return nil, resp.Err()
-	}
 	cookies := &Cookies{}
-	if err := resp.Object()["cookies"].To(&cookies); err != nil {
-		return nil, err
-	}
-	ui.Close()
+	var e error
+
+	go func() {
+		currentURL := ""
+		for strings.Index(strings.ToLower(currentURL), strings.ToLower(c.SiteURL)) == -1 {
+			newURL := ui.Eval("window.location.href").String()
+			if currentURL != newURL {
+				currentURL = newURL
+			}
+			time.Sleep(500 * time.Microsecond)
+		}
+		resp := ui.Send("Network.getCookies", nil)
+		if resp.Err() != nil {
+			e = resp.Err()
+			return
+		}
+		if err := resp.Object()["cookies"].To(&cookies); err != nil {
+			e = err
+		}
+		ui.Close()
+	}()
 
 	<-ui.Done()
 
-	return cookies, nil
+	if len(*cookies) == 0 {
+		e = fmt.Errorf("can't get authentication cookies")
+	}
+
+	return cookies, e
 }
 
 func getStartHTML(siteURL string) string {
