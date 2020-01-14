@@ -121,16 +121,24 @@ func uploadFile(sp *api.SP, filePath string) error {
 	if len(data) == 0 {
 		return nil // skip 0 size files
 	}
-	// Ensure remote folder exists
 	folderURI := getFileFolderURI(filePath)
 	fileURI := getFileURI(filePath)
-	if _, err := sp.Web().EnsureFolder(folderURI); err != nil {
-		return err
-	}
 	// Upload file to document library
-	file, err := sp.Web().GetFolder(folderURI).Files().Add(filepath.Base(filePath), data, true)
+	files := sp.Web().GetFolder(folderURI).Files()
+	file, err := files.Add(filepath.Base(filePath), data, true)
 	if err != nil {
-		return err
+		if strings.Index(err.Error(), "System.IO.DirectoryNotFoundException") != -1 {
+			// Create remote folder
+			if _, err := sp.Web().EnsureFolder(folderURI); err != nil {
+				return err
+			}
+			file, err = files.Add(filepath.Base(filePath), data, true)
+			if err != nil {
+				return err
+			}
+		} else {
+			return nil
+		}
 	}
 	if file.Data().CheckOutType != 2 {
 		if _, err := sp.Web().GetFile(fileURI).CheckIn("", 2); err != nil {
@@ -143,7 +151,11 @@ func uploadFile(sp *api.SP, filePath string) error {
 
 func deleteFile(sp *api.SP, filePath string) error {
 	fileURI := getFileURI(filePath)
-	if err := sp.Web().GetFile(fileURI).Recycle(); err == nil {
+	if err := sp.Web().GetFile(fileURI).Recycle(); err != nil {
+		if strings.Index(err.Error(), "404 Not Found") == -1 {
+			return err
+		}
+	} else {
 		log.Printf("📄 ❌: %s\n", fileURI)
 	}
 	return nil
@@ -161,9 +173,12 @@ func createFolder(sp *api.SP, folderPath string) error {
 func deleteFolder(sp *api.SP, folderPath string) error {
 	folderURI := getFolderURI(folderPath)
 	if err := sp.Web().GetFolder(folderURI).Recycle(); err != nil {
-		return err
+		if strings.Index(err.Error(), "404 Not Found") == -1 {
+			return err
+		}
+	} else {
+		log.Printf("📁 ❌: %s\n", folderURI)
 	}
-	log.Printf("📁 ❌: %s\n", folderURI)
 	return nil
 }
 
