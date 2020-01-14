@@ -1,4 +1,4 @@
-// go run ./samples/sync/ -watched ./samples/sync/watched
+// go run ./samples/sync/ -watch ./samples/sync/watched
 package main
 
 import (
@@ -22,7 +22,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(&wFolder, "watched", "", "Local folder to watch")
+	flag.StringVar(&wFolder, "watch", "", "Local folder to watch")
 	flag.StringVar(&spFolder, "spFolder", "SiteAssets", "SP folder to sync to")
 	flag.BoolVar(&syncAll, "syncAll", false, "Sync all files on startup")
 	flag.Parse()
@@ -32,7 +32,7 @@ func main() {
 	}
 
 	// Binding auth & API client
-	configPath := "./config/private.saml.json"
+	configPath := "./config/private.json"
 	authCnfg := &strategy.AuthCnfg{}
 	if err := authCnfg.ReadConfig(configPath); err != nil {
 		log.Fatalf("unable to get config: %v", err)
