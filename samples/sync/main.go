@@ -73,9 +73,21 @@ func watch(sp *api.SP) {
 
 	if syncAll {
 		go func() {
+			start := time.Now()
+			errors := []error{}
+			filesNum := 0
 			for path := range w.WatchedFiles() {
-				uploadFile(sp, path)
+				if len(errors) > 10 {
+					log.Printf("❌ : Too many errors, skipping upload...\n")
+					break
+				}
+				if err := uploadFile(sp, path); err != nil {
+					errors = append(errors, err)
+					log.Printf("%s: %s\n", path, err)
+				}
+				filesNum++
 			}
+			log.Printf("📄 🏁 : Full sync of %d file(s) in %s\n", filesNum, time.Since(start))
 		}()
 	}
 
@@ -136,7 +148,7 @@ func uploadFile(sp *api.SP, filePath string) error {
 			if _, err := sp.Web().EnsureFolder(folderURI); err != nil {
 				return err
 			}
-			log.Printf("📄 ✔️: %s (%s)\n", folderURI, time.Since(start))
+			log.Printf("📄 ✔️ : %s (%s)\n", folderURI, time.Since(start))
 			// Another attempt after a folder(s) is/are created
 			file, err = files.Add(filepath.Base(filePath), data, true)
 			if err != nil {
@@ -152,7 +164,7 @@ func uploadFile(sp *api.SP, filePath string) error {
 			return err
 		}
 	}
-	log.Printf("📄 ✔️: %s (%s)\n", fileURI, time.Since(start))
+	log.Printf("📄 ✔️ : %s (%s)\n", fileURI, time.Since(start))
 	return nil
 }
 
@@ -165,7 +177,7 @@ func deleteFile(sp *api.SP, filePath string) error {
 			return err
 		}
 	} else {
-		log.Printf("📄 ❌: %s (%s)\n", fileURI, time.Since(start))
+		log.Printf("📄 ❌ : %s (%s)\n", fileURI, time.Since(start))
 	}
 	return nil
 }
@@ -187,7 +199,7 @@ func deleteFolder(sp *api.SP, folderPath string) error {
 			return err
 		}
 	} else {
-		log.Printf("📁 ❌: %s (%s)\n", folderURI, time.Since(start))
+		log.Printf("📁 ❌ : %s (%s)\n", folderURI, time.Since(start))
 	}
 	return nil
 }
