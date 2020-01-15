@@ -76,16 +76,18 @@ func watch(sp *api.SP) {
 			start := time.Now()
 			errors := []error{}
 			filesNum := 0
-			for path := range w.WatchedFiles() {
+			for path, file := range w.WatchedFiles() {
 				if len(errors) > 10 {
 					log.Printf("❌ : Too many errors, skipping upload...\n")
 					break
 				}
-				if err := uploadFile(sp, path); err != nil {
-					errors = append(errors, err)
-					log.Printf("%s: %s\n", path, err)
+				if !file.IsDir() {
+					if err := uploadFile(sp, path); err != nil {
+						errors = append(errors, err)
+						log.Printf("%s: %s\n", path, err)
+					}
+					filesNum++
 				}
-				filesNum++
 			}
 			log.Printf("📄 🏁 : Full sync of %d file(s) in %s\n", filesNum, time.Since(start))
 		}()
