@@ -22,8 +22,6 @@ import (
 	"github.com/koltyakov/gosip/api"
 )
 
-var debug bool
-
 func main() {
 
 	strategy := flag.String("strategy", "ondemand", "Auth strategy")
