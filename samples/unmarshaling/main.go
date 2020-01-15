@@ -2,20 +2,25 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 
 	"github.com/koltyakov/gosip"
+	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 	"github.com/koltyakov/gosip/api"
-	strategy "github.com/koltyakov/gosip/auth/saml"
 )
 
 func main() {
+	strategy := flag.String("strategy", "", "Auth strategy")
+	config := flag.String("config", "", "Config path")
+
+	flag.Parse()
+
 	// Binding auth & API client
-	configPath := "./config/private.saml.json"
-	authCnfg := &strategy.AuthCnfg{}
-	if err := authCnfg.ReadConfig(configPath); err != nil {
-		log.Fatalf("unable to get config: %v", err)
+	authCnfg, err := dynauth.NewAuthCnfg(*strategy, *config)
+	if err != nil {
+		log.Fatal(err)
 	}
 	client := &gosip.SPClient{AuthCnfg: authCnfg}
 	sp := api.NewSP(client)
