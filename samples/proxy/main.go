@@ -10,12 +10,7 @@ import (
 	"strings"
 
 	"github.com/koltyakov/gosip"
-	"github.com/koltyakov/gosip/auth/addin"
-	"github.com/koltyakov/gosip/auth/adfs"
-	"github.com/koltyakov/gosip/auth/fba"
-	"github.com/koltyakov/gosip/auth/ntlm"
-	"github.com/koltyakov/gosip/auth/saml"
-	"github.com/koltyakov/gosip/auth/tmg"
+	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 )
 
 var debug bool
@@ -37,36 +32,7 @@ func main() {
 
 	flag.Parse()
 
-	var auth gosip.AuthCnfg
-
-	switch strategy {
-	case "addin":
-		auth = &addin.AuthCnfg{}
-		break
-	case "adfs":
-		auth = &adfs.AuthCnfg{}
-		break
-	case "fba":
-		auth = &fba.AuthCnfg{}
-		break
-	case "ntlm":
-		auth = &ntlm.AuthCnfg{}
-		break
-	case "saml":
-		auth = &saml.AuthCnfg{}
-		break
-	case "tmg":
-		auth = &tmg.AuthCnfg{}
-		break
-	default:
-		log.Fatalf("can't resolve the strategy: %s", strategy)
-	}
-
-	if config == "" {
-		log.Fatalf("config path must be provided")
-	}
-
-	err := auth.ReadConfig(config)
+	auth, err := dynauth.NewAuthCnfg(strategy, config)
 	if err != nil {
 		log.Fatalf("unable to get config: %v", err)
 	}
