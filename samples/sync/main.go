@@ -116,6 +116,7 @@ func sync(sp *api.SP, event watcher.Event) error {
 }
 
 func uploadFile(sp *api.SP, filePath string) error {
+	start := time.Now()
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return err
@@ -126,6 +127,7 @@ func uploadFile(sp *api.SP, filePath string) error {
 	folderURI := getFileFolderURI(filePath)
 	fileURI := getFileURI(filePath)
 	// Upload file to document library
+	// optimistic strategy, is faster if not to check folder exists each time and create folders only on errors
 	files := sp.Web().GetFolder(folderURI).Files()
 	file, err := files.Add(filepath.Base(filePath), data, true)
 	if err != nil {
@@ -134,6 +136,8 @@ func uploadFile(sp *api.SP, filePath string) error {
 			if _, err := sp.Web().EnsureFolder(folderURI); err != nil {
 				return err
 			}
+			log.Printf("📄 ✔️: %s (%s)\n", folderURI, time.Since(start))
+			// Another attempt after a folder(s) is/are created
 			file, err = files.Add(filepath.Base(filePath), data, true)
 			if err != nil {
 				return err
@@ -142,23 +146,26 @@ func uploadFile(sp *api.SP, filePath string) error {
 			return nil
 		}
 	}
+	// Check in a file if it was checke out
 	if file.Data().CheckOutType != 2 {
 		if _, err := sp.Web().GetFile(fileURI).CheckIn("", 2); err != nil {
 			return err
 		}
 	}
-	log.Printf("📄 ✔️: %s\n", fileURI)
+	log.Printf("📄 ✔️: %s (%s)\n", fileURI, time.Since(start))
 	return nil
 }
 
 func deleteFile(sp *api.SP, filePath string) error {
+	start := time.Now()
 	fileURI := getFileURI(filePath)
 	if err := sp.Web().GetFile(fileURI).Recycle(); err != nil {
-		if strings.Index(err.Error(), "404 Not Found") == -1 {
+		// Ignore file does not exist errors
+		if strings.Index(err.Error(), "-2146232832, Microsoft.SharePoint.SPException") == -1 {
 			return err
 		}
 	} else {
-		log.Printf("📄 ❌: %s\n", fileURI)
+		log.Printf("📄 ❌: %s (%s)\n", fileURI, time.Since(start))
 	}
 	return nil
 }
@@ -168,18 +175,19 @@ func createFolder(sp *api.SP, folderPath string) error {
 	if _, err := sp.Web().EnsureFolder(folderURI); err != nil {
 		return err
 	}
-	// log.Printf("Folder is created: %s\n", folderURI)
 	return nil
 }
 
 func deleteFolder(sp *api.SP, folderPath string) error {
+	start := time.Now()
 	folderURI := getFolderURI(folderPath)
 	if err := sp.Web().GetFolder(folderURI).Recycle(); err != nil {
+		// Ignore folder does not exist errors
 		if strings.Index(err.Error(), "404 Not Found") == -1 {
 			return err
 		}
 	} else {
-		log.Printf("📁 ❌: %s\n", folderURI)
+		log.Printf("📁 ❌: %s (%s)\n", folderURI, time.Since(start))
 	}
 	return nil
 }
