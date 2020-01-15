@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/koltyakov/gosip"
+	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 	"github.com/koltyakov/gosip/api"
-	strategy "github.com/koltyakov/gosip/auth/saml"
 	"github.com/radovskyb/watcher"
 )
 
@@ -22,9 +22,12 @@ var (
 )
 
 func main() {
+	strategy := flag.String("strategy", "saml", "Auth strategy")
+	config := flag.String("config", "./config/private.json", "Config path")
 	flag.StringVar(&wFolder, "watch", "", "Local folder to watch")
 	flag.StringVar(&spFolder, "spFolder", "SiteAssets", "SP folder to sync to")
 	flag.BoolVar(&syncAll, "syncAll", false, "Sync all files on startup")
+
 	flag.Parse()
 
 	if wFolder == "" {
@@ -32,10 +35,9 @@ func main() {
 	}
 
 	// Binding auth & API client
-	configPath := "./config/private.json"
-	authCnfg := &strategy.AuthCnfg{}
-	if err := authCnfg.ReadConfig(configPath); err != nil {
-		log.Fatalf("unable to get config: %v", err)
+	authCnfg, err := dynauth.NewAuthCnfg(*strategy, *config)
+	if err != nil {
+		log.Fatal(err)
 	}
 	client := &gosip.SPClient{AuthCnfg: authCnfg}
 	sp := api.NewSP(client)
