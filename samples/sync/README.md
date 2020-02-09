@@ -1,6 +1,6 @@
 # Folders & Files sync
 
-The sample shows how to arrange local directory changes tracking with corresponding syncronization with SharePoint document library.
+The sample shows how to arrange local directory changes tracking with the corresponding synchronization with SharePoint document library.
 
 The use-cases are:
 
@@ -20,15 +20,26 @@ Create `./config/private.json` with SAML auth credentials (or any other, but sho
 Run:
 
 ```bash
-bin/filesync.exe -watch ./folder/to/watch -spFolder "Style Library"
+bin/filesync.exe -localFolder ./folder/to/watch -spFolder "Style Library"
 ```
 
 Where:
-- `-watch` is a local folder to watch
+- `-localFolder` is a local folder to watch
 - `-spFolder` is SP folder to sync to
 
-When, applyed changes are synced with SharePoint.
+When applied changes are synced with SharePoint.
 
-## Sync all on start
+## All flags description
 
-Use `-syncAll` flag to upload local files on start.
+```bash
+go run ./samples/sync/ -h
+```
+
+Flag | Description
+-----|------------
+`-strategy` | string, Auth strategy (default "saml")
+`-config` | string, Config path (default "./config/private.json")
+`-localFolder` | string, Local folder to watch
+`-spFolder` | string, SP folder to sync to (default "SiteAssets")
+`-skipSync` | bool, Skips initial sync of files on startup
+`-watch` | bool, Watch local folder for changes
