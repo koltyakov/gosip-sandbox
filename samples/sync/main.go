@@ -1,4 +1,4 @@
-// go run ./samples/sync/ -watch ./samples/sync/watched
+// go run ./samples/sync/ -localFolder ./samples/sync/watched
 package main
 
 import (
@@ -16,21 +16,25 @@ import (
 )
 
 var (
-	wFolder  string
-	spFolder string
-	syncAll  bool
+	localFolder string
+	spFolder    string
+	watchMode   bool
+	skipSync    bool
 )
 
 func main() {
 	strategy := flag.String("strategy", "saml", "Auth strategy")
 	config := flag.String("config", "./config/private.json", "Config path")
-	flag.StringVar(&wFolder, "watch", "", "Local folder to watch")
+
+	flag.StringVar(&localFolder, "localFolder", "", "Local folder to watch")
 	flag.StringVar(&spFolder, "spFolder", "SiteAssets", "SP folder to sync to")
-	flag.BoolVar(&syncAll, "syncAll", false, "Sync all files on startup")
+
+	flag.BoolVar(&watchMode, "watch", false, "Watch local folder for changes")
+	flag.BoolVar(&skipSync, "skipSync", false, "Skips initial sync of files on startup")
 
 	flag.Parse()
 
-	if wFolder == "" {
+	if localFolder == "" {
 		log.Fatalf("no watched folder is provided")
 	}
 
@@ -47,7 +51,7 @@ func main() {
 		log.Fatalf("can't connect to site, %s\n", err)
 	}
 
-	log.Printf("Watching folder: %s\n", wFolder)
+	log.Printf("Watching folder: %s\n", localFolder)
 	log.Printf("Sync target: %s, %s\n", web.Data().Title, spFolder)
 
 	watch(sp)
@@ -56,22 +60,26 @@ func main() {
 func watch(sp *api.SP) {
 	w := watcher.New()
 
-	go func() {
-		for {
-			select {
-			case event := <-w.Event:
-				if err := sync(sp, event); err != nil {
-					log.Printf("%s\n", err)
+	// Watch files and upload/delete on changes
+	if watchMode {
+		go func() {
+			for {
+				select {
+				case event := <-w.Event:
+					if err := sync(sp, event); err != nil {
+						log.Printf("%s\n", err)
+					}
+				case err := <-w.Error:
+					log.Fatalln(err)
+				case <-w.Closed:
+					return
 				}
-			case err := <-w.Error:
-				log.Fatalln(err)
-			case <-w.Closed:
-				return
 			}
-		}
-	}()
+		}()
+	}
 
-	if syncAll {
+	// Initial files upload on process start
+	if !skipSync {
 		go func() {
 			start := time.Now()
 			errors := []error{}
@@ -90,10 +98,13 @@ func watch(sp *api.SP) {
 				}
 			}
 			log.Printf("📄 🏁 : Full sync of %d file(s) in %s\n", filesNum, time.Since(start))
+			if !watchMode {
+				w.Close()
+			}
 		}()
 	}
 
-	if err := w.AddRecursive(wFolder); err != nil {
+	if err := w.AddRecursive(localFolder); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -207,23 +218,23 @@ func deleteFolder(sp *api.SP, folderPath string) error {
 }
 
 func getFolderURI(folderPath string) string {
-	localFolder, _ := filepath.Abs(wFolder)
-	relPath, _ := filepath.Rel(localFolder, folderPath)
+	lFolder, _ := filepath.Abs(localFolder)
+	relPath, _ := filepath.Rel(lFolder, folderPath)
 	relPath = strings.Replace(relPath, "\\", "/", -1)
 	return spFolder + "/" + relPath
 }
 
 func getFileFolderURI(filePath string) string {
 	folderPath := filepath.Dir(filePath)
-	localFolder, _ := filepath.Abs(wFolder)
-	relPath, _ := filepath.Rel(localFolder, folderPath)
+	lFolder, _ := filepath.Abs(localFolder)
+	relPath, _ := filepath.Rel(lFolder, folderPath)
 	relPath = strings.Replace(relPath, "\\", "/", -1)
 	return spFolder + "/" + relPath
 }
 
 func getFileURI(filePath string) string {
-	localFolder, _ := filepath.Abs(wFolder)
-	relPath, _ := filepath.Rel(localFolder, filePath)
+	lFolder, _ := filepath.Abs(localFolder)
+	relPath, _ := filepath.Rel(lFolder, filePath)
 	relPath = strings.Replace(relPath, "\\", "/", -1)
 	return spFolder + "/" + relPath
 }
