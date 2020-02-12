@@ -51,7 +51,7 @@ func main() {
 
 	// Add series in a sequence with items/add
 	start = time.Now()
-	fmt.Println("Add series in a sequence with items/add...")
+	fmt.Println("Add 100 items in a sequence (OData Add)")
 	for i := 1; i <= 100; i++ {
 		metadata := make(map[string]interface{})
 		metadata["__metadata"] = map[string]string{"type": entType}
@@ -61,12 +61,12 @@ func main() {
 			fmt.Printf("Item adding error: %v\n", err)
 		}
 	}
-	fmt.Printf("  took: %s per 100 items\n", time.Now().Sub(start))
+	fmt.Printf("  took: %s\n", time.Now().Sub(start))
 
 	// Add series in parallel with items/add
 	start = time.Now()
 	var wg sync.WaitGroup
-	fmt.Println("Add series in a parallel with items/add...")
+	fmt.Println("Add 100 items in parallel (OData Add)")
 	for i := 1; i <= 100; i++ {
 		wg.Add(1)
 		go func(i int, wg *sync.WaitGroup) {
@@ -81,24 +81,24 @@ func main() {
 		}(i, &wg)
 	}
 	wg.Wait()
-	fmt.Printf("  took: %s per 100 items\n", time.Now().Sub(start))
+	fmt.Printf("  took: %s\n", time.Now().Sub(start))
 
 	if *isSPO { // following methods are supported in SPO
 
 		// Add series in a sequence with items/add
 		start = time.Now()
-		fmt.Println("Add series in a sequence with add validate...")
+		fmt.Println("Add 100 items in a sequence (AddValidateUsingPath)")
 		for i := 1; i <= 100; i++ {
 			metadata := map[string]string{"Title": fmt.Sprintf("Item %d", i)}
 			if _, err := list.Items().AddValidate(metadata, nil); err != nil {
 				fmt.Printf("Item adding error: %v\n", err)
 			}
 		}
-		fmt.Printf("  took: %s per 100 items\n", time.Now().Sub(start))
+		fmt.Printf("  took: %s\n", time.Now().Sub(start))
 
 		// Add series in parallel with items/add
 		start = time.Now()
-		fmt.Println("Add series in a parallel with add validate...")
+		fmt.Println("Add 100 items in parallel (AddValidateUsingPath)")
 		for i := 1; i <= 100; i++ {
 			wg.Add(1)
 			go func(i int, wg *sync.WaitGroup) {
@@ -110,12 +110,12 @@ func main() {
 			}(i, &wg)
 		}
 		wg.Wait()
-		fmt.Printf("  took: %s per 100 items\n", time.Now().Sub(start))
+		fmt.Printf("  took: %s\n", time.Now().Sub(start))
 
 	}
 
 	start = time.Now()
-	fmt.Println("Add series in a sequence with csom...")
+	fmt.Println("Add 100 items in a sequence (CSOM)")
 	for i := 1; i <= 100; i++ {
 		b := csom.NewBuilder()
 		b.AddObject(csom.NewObjectProperty("Web"), nil)
@@ -149,6 +149,41 @@ func main() {
 			fmt.Printf("Item adding error: %v\n", err)
 		}
 	}
-	fmt.Printf("  took: %s per 100 items\n", time.Now().Sub(start))
+	fmt.Printf("  took: %s\n", time.Now().Sub(start))
+
+	start = time.Now()
+	fmt.Println("Add 100 items (CSOM batch)")
+	b := csom.NewBuilder()
+	b.AddObject(csom.NewObjectProperty("Web"), nil)
+	b.AddObject(csom.NewObjectProperty("Lists"), nil)
+	cListObj, _ := b.AddObject(csom.NewObjectMethod("GetByTitle", []string{
+		fmt.Sprintf(`<Parameter Type="String">%s</Parameter>`, listName),
+	}), nil)
+	for i := 1; i <= 100; i++ {
+		cAddItemObj, _ := b.AddObject(csom.NewObject(`
+			<Method Id="{{.ID}}" ParentId="{{.ParentID}}" Name="AddItem">
+				<Parameters>
+					<Parameter TypeId="{54cdbee5-0897-44ac-829f-411557fa11be}">
+						<Property Name="FolderUrl" Type="Null" />
+						<Property Name="LeafName" Type="Null" />
+						<Property Name="UnderlyingObjectType" Type="Number">0</Property>
+					</Parameter>
+				</Parameters>
+			</Method>
+		`), cListObj)
+		b.AddAction(csom.NewActionMethod("SetFieldValue", []string{
+			`<Parameter Type="String">Title</Parameter>`,
+			fmt.Sprintf(`<Parameter Type="String">Item %d</Parameter>`, i),
+		}), cAddItemObj)
+		b.AddAction(csom.NewAction(`<Method Name="Update" Id="{{.ID}}" ObjectPathId="{{.ObjectID}}" />`), cAddItemObj)
+	}
+	csomXML, err := b.Compile()
+	if err != nil {
+		fmt.Printf("Items adding error: %v\n", err)
+	}
+	if _, err := httpClient.ProcessQuery(authCnfg.GetSiteURL(), bytes.NewBuffer([]byte(csomXML)), nil); err != nil {
+		fmt.Printf("Items adding error: %v\n", err)
+	}
+	fmt.Printf("  took: %s\n", time.Now().Sub(start))
 
 }
