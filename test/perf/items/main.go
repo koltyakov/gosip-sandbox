@@ -49,7 +49,7 @@ func main() {
 
 	var start time.Time
 
-	// Add series in a sequence with items/add
+	// Add series in a sequence (OData Add)
 	start = time.Now()
 	fmt.Println("Add 100 items in a sequence (OData Add)")
 	for i := 1; i <= 100; i++ {
@@ -63,7 +63,7 @@ func main() {
 	}
 	fmt.Printf("  took: %s\n", time.Now().Sub(start))
 
-	// Add series in parallel with items/add
+	// Add series in parallel (OData Add)
 	start = time.Now()
 	var wg sync.WaitGroup
 	fmt.Println("Add 100 items in parallel (OData Add)")
@@ -85,7 +85,7 @@ func main() {
 
 	if *isSPO { // following methods are supported in SPO
 
-		// Add series in a sequence with items/add
+		// Add series in a sequence (AddValidateUsingPath)
 		start = time.Now()
 		fmt.Println("Add 100 items in a sequence (AddValidateUsingPath)")
 		for i := 1; i <= 100; i++ {
@@ -96,7 +96,7 @@ func main() {
 		}
 		fmt.Printf("  took: %s\n", time.Now().Sub(start))
 
-		// Add series in parallel with items/add
+		// Add series in parallel (AddValidateUsingPath)
 		start = time.Now()
 		fmt.Println("Add 100 items in parallel (AddValidateUsingPath)")
 		for i := 1; i <= 100; i++ {
@@ -114,6 +114,7 @@ func main() {
 
 	}
 
+	// Add series in a sequence (CSOM)
 	start = time.Now()
 	fmt.Println("Add 100 items in a sequence (CSOM)")
 	for i := 1; i <= 100; i++ {
@@ -151,6 +152,7 @@ func main() {
 	}
 	fmt.Printf("  took: %s\n", time.Now().Sub(start))
 
+	// Add series in batch (CSOM batch)
 	start = time.Now()
 	fmt.Println("Add 100 items (CSOM batch)")
 	b := csom.NewBuilder()
