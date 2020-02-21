@@ -60,6 +60,6 @@ func (cookie *Cookie) isExpired() bool {
 func (cookie *Cookie) toMap() map[string]interface{} {
 	res := map[string]interface{}{}
 	raw, _ := json.Marshal(cookie)
-	json.Unmarshal(raw, &res)
+	_ = json.Unmarshal(raw, &res)
 	return res
 }

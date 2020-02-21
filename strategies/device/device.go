@@ -43,7 +43,7 @@ func (c *AuthCnfg) ReadConfig(privateFile string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	data, _ := ioutil.ReadAll(f)
 	return json.Unmarshal(data, &c)
 }
@@ -80,7 +80,7 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 		// Expired, try to refresh
 		if err := token.Refresh(); err == nil {
 			// Cache refreshed token
-			c.cacheTokenToDisk(token)
+			_ = c.cacheTokenToDisk(token)
 			// Return refreshed token
 			return token.Token().AccessToken, nil
 		}
@@ -95,7 +95,7 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 		return "", err
 	}
 
-	c.cacheTokenToDisk(token)
+	_ = c.cacheTokenToDisk(token)
 
 	tokenCache[resource] = token
 	return token.Token().AccessToken, nil
@@ -112,6 +112,7 @@ func (c *AuthCnfg) GetStrategy() string {
 }
 
 // SetAuth authenticates request
+// noinspection GoUnusedParameter
 func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error {
 	accessToken, err := c.GetAuth()
 	if err != nil {
@@ -121,7 +122,7 @@ func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error 
 	return nil
 }
 
-//=== File system token caching helpers ===//
+// === File system token caching helpers === //
 
 // CleanTokenCache removes token information
 func (c *AuthCnfg) CleanTokenCache() error {
@@ -146,7 +147,7 @@ func (c *AuthCnfg) cacheTokenToDisk(token *adal.ServicePrincipalToken) error {
 	tokenCacheE, _ := crypter.Encode(fmt.Sprintf("%s", tokenCache))
 	tokenCache = []byte(tokenCacheE)
 
-	os.MkdirAll(tmpDir, os.ModePerm)
+	_ = os.MkdirAll(tmpDir, os.ModePerm)
 	if err := ioutil.WriteFile(tokenCachePath, tokenCache, 0644); err != nil {
 		return err
 	}

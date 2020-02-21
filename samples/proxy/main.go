@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/koltyakov/gosip"
+
 	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 )
 
@@ -88,7 +89,7 @@ func proxyHandler(ctx gosip.AuthCnfg) func(w http.ResponseWriter, r *http.Reques
 			http.Error(w, message, http.StatusBadRequest)
 			return
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		for name, headers := range resp.Header {
 			name = strings.ToLower(name)
@@ -99,6 +100,6 @@ func proxyHandler(ctx gosip.AuthCnfg) func(w http.ResponseWriter, r *http.Reques
 
 		w.WriteHeader(resp.StatusCode)
 
-		io.Copy(w, resp.Body)
+		_, _ = io.Copy(w, resp.Body)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/koltyakov/gosip"
+
 	u "github.com/koltyakov/gosip-sandbox/test/utils"
 )
 
@@ -33,7 +34,7 @@ func CheckRequest(auth gosip.AuthCnfg, cnfgPath string) error {
 	if err != nil {
 		return fmt.Errorf("unable to request api: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

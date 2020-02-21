@@ -3,6 +3,7 @@
 
 > SharePoint authentication, HTTP client & fluent API wrapper for Go (Golang)
 
+<!--suppress ALL -->
 <p align="center">
   <img src="./assets/gosip.png" />
 </p>

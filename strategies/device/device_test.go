@@ -58,23 +58,23 @@ func TestAuthEdgeCases(t *testing.T) {
 		cnfg := &AuthCnfg{}
 		folderPath := u.ResolveCnfgPath("./tmp")
 		filePath := u.ResolveCnfgPath("./tmp/private.device.malformed.json")
-		os.MkdirAll(folderPath, os.ModePerm)
-		ioutil.WriteFile(filePath, []byte("not a json"), 0644)
+		_ = os.MkdirAll(folderPath, os.ModePerm)
+		_ = ioutil.WriteFile(filePath, []byte("not a json"), 0644)
 		if err := cnfg.ReadConfig(filePath); err == nil {
 			t.Error("malformed config should not pass")
 		}
-		os.RemoveAll(filePath)
+		_ = os.RemoveAll(filePath)
 	})
 
 	t.Run("WriteConfig", func(t *testing.T) {
 		folderPath := u.ResolveCnfgPath("./tmp")
 		filePath := u.ResolveCnfgPath("./tmp/private.device.json")
 		cnfg := &AuthCnfg{SiteURL: "test"}
-		os.MkdirAll(folderPath, os.ModePerm)
+		_ = os.MkdirAll(folderPath, os.ModePerm)
 		if err := cnfg.WriteConfig(filePath); err != nil {
 			t.Error(err)
 		}
-		os.RemoveAll(filePath)
+		_ = os.RemoveAll(filePath)
 	})
 
 }

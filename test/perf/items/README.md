@@ -12,8 +12,8 @@ go run ./test/perf/items/ -config ./config/private.json -strategy saml -spo
 
 ![response sample](./resp-sample-1.png)
 
-## Random On-Prem:
+## Random On-Premise:
 
 ![response sample](./resp-sample-2.png)
 
-> Not a comparison of SPO vs. On-Prem but different API for the same actions. There are too many random factors.
+> Not a comparison of SPO vs. On-Premise but different API for the same actions. There are too many random factors.

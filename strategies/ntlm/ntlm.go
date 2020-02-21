@@ -1,7 +1,7 @@
 // Package ntlm implements NTLM Auth (NTLM handshake)
 // This type of authentication uses HTTP NTLM handshake in order to obtain authentication header.
 // Amongst supported platform versions are:
-//   - On-Prem: 2019, 2016, and 2013
+//   - On-Premise: 2019, 2016, and 2013
 package ntlm
 
 import (
@@ -39,7 +39,7 @@ func (c *AuthCnfg) ReadConfig(privateFile string) error {
 	if err != nil {
 		return err
 	}
-	defer jsonFile.Close()
+	defer func() { _ = jsonFile.Close() }()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	if err := json.Unmarshal(byteValue, &c); err != nil {

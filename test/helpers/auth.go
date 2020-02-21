@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/koltyakov/gosip"
+
 	u "github.com/koltyakov/gosip-sandbox/test/utils"
 )
 
@@ -56,7 +57,7 @@ func CheckAuth(auth gosip.AuthCnfg, cnfgPath string, required []string) error {
 
 // CheckAuthProps : checks if all required props are provided
 func CheckAuthProps(auth gosip.AuthCnfg, required []string) error {
-	missedProps := []string{}
+	var missedProps []string
 	for _, prop := range required {
 		v := getPropVal(auth, prop)
 		if v == "" {
@@ -79,5 +80,5 @@ func getPropVal(v gosip.AuthCnfg, field string) string {
 	if !f.IsValid() {
 		return ""
 	}
-	return string(f.String())
+	return f.String()
 }

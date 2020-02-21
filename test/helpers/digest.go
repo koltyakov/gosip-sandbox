@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/koltyakov/gosip"
+
 	u "github.com/koltyakov/gosip-sandbox/test/utils"
 )
 

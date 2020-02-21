@@ -16,7 +16,7 @@ func (c *AuthCnfg) onDemandAuthFlow(initialCookies *Cookies) (*Cookies, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer ui.Close()
+	defer func() { _ = ui.Close() }()
 
 	if initialCookies != nil {
 		for _, cookie := range *initialCookies {
@@ -24,7 +24,7 @@ func (c *AuthCnfg) onDemandAuthFlow(initialCookies *Cookies) (*Cookies, error) {
 		}
 	}
 
-	ui.Load(c.SiteURL)
+	_ = ui.Load(c.SiteURL)
 
 	cookies := &Cookies{}
 	var e error
@@ -46,7 +46,7 @@ func (c *AuthCnfg) onDemandAuthFlow(initialCookies *Cookies) (*Cookies, error) {
 		if err := resp.Object()["cookies"].To(&cookies); err != nil {
 			e = err
 		}
-		ui.Close()
+		_ = ui.Close()
 	}()
 
 	<-ui.Done()

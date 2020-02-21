@@ -13,5 +13,5 @@ Sample | Description
 [Dynamic authentication](./dynauth) | Shows a simple way of importing potentially demanded strategies and selecting one in runtime based on logic, CLI flags in the case of the sample.
 [Consumption with PowerShell](./posh) | Shows how to retrieve auth tokens to use in a PowerShell script (is relevant for Edge auth scenarios).
 [Dev API Proxy](./proxy) | Shows how to expose SharePoint API as an anonymous endpoint for a dev server.
-[Files upload (sync)](./sync) | Is a syncronization sample which provides a sigle time assets upload or/and local file system watch mode. Provides in times faster upload when any other known alternative.
-[Unmarshaling API responses](./unmarshaling) | Basic unmarhsaling sample.
+[Files upload (sync)](./sync) | Is a synchronization sample which provides a sigle time assets upload or/and local file system watch mode. Provides in times faster upload when any other known alternative.
+[Unmarshaling API responses](./unmarshaling) | Basic unmarshaling sample.

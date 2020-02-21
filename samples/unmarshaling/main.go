@@ -7,8 +7,9 @@ import (
 	"log"
 
 	"github.com/koltyakov/gosip"
-	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 	"github.com/koltyakov/gosip/api"
+
+	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 )
 
 func main() {
@@ -33,10 +34,10 @@ func main() {
 	}
 
 	// Define a stuct or map[string]interface{} for unmarshalling
-	items := []*struct {
+	var items []*struct {
 		ID     int    `json:"Id"`
 		Custom string `json:"CustomField"`
-	}{}
+	}
 
 	// Use `data.Normalized()` or `data, _ = api.NormalizeODataCollection(data)`
 	// for OData modes normalization.

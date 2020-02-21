@@ -38,7 +38,7 @@ func (c *AuthCnfg) ReadConfig(privateFile string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	data, _ := ioutil.ReadAll(f)
 	return json.Unmarshal(data, &c)
 }
@@ -71,7 +71,7 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 		cookies, err := c.onDemandAuthFlow(cookies)
 		if err == nil {
 			// Cache refreshed cookie
-			c.cacheCookieToDisk(cookies)
+			_ = c.cacheCookieToDisk(cookies)
 			// Return refreshed token
 			return cookies.toString(), nil
 		}
@@ -83,7 +83,7 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 		return "", err
 	}
 
-	c.cacheCookieToDisk(cookies)
+	_ = c.cacheCookieToDisk(cookies)
 
 	cookieCache[u.Host] = cookies
 	return cookies.toString(), nil
@@ -100,6 +100,7 @@ func (c *AuthCnfg) GetStrategy() string {
 }
 
 // SetAuth authenticates request
+// noinspection ALL
 func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error {
 	authCookie, err := c.GetAuth()
 	if err != nil {
@@ -109,7 +110,7 @@ func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error 
 	return nil
 }
 
-//=== File system cookie caching helpers ===//
+// === File system cookie caching helpers === //
 
 // CleanCookieCache removes cookie information
 func (c *AuthCnfg) CleanCookieCache() error {
@@ -138,7 +139,7 @@ func (c *AuthCnfg) cacheCookieToDisk(cookies *Cookies) error {
 	cookieCacheE, _ := crypter.Encode(fmt.Sprintf("%s", cookieCache))
 	cookieCache = []byte(cookieCacheE)
 
-	os.MkdirAll(tmpDir, os.ModePerm)
+	_ = os.MkdirAll(tmpDir, os.ModePerm)
 	if err := ioutil.WriteFile(cookieCachePath, cookieCache, 0644); err != nil {
 		return err
 	}

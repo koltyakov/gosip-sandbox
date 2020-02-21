@@ -4,14 +4,15 @@ import (
 	"fmt"
 
 	"github.com/koltyakov/gosip"
-	"github.com/koltyakov/gosip-sandbox/strategies/device"
-	"github.com/koltyakov/gosip-sandbox/strategies/ondemand"
 	"github.com/koltyakov/gosip/auth/addin"
 	"github.com/koltyakov/gosip/auth/adfs"
 	"github.com/koltyakov/gosip/auth/fba"
 	"github.com/koltyakov/gosip/auth/ntlm"
 	"github.com/koltyakov/gosip/auth/saml"
 	"github.com/koltyakov/gosip/auth/tmg"
+
+	"github.com/koltyakov/gosip-sandbox/strategies/device"
+	"github.com/koltyakov/gosip-sandbox/strategies/ondemand"
 )
 
 // NewAuthCnfg creates AuthCnfg object based on strategy and config path

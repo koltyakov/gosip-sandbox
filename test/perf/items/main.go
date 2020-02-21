@@ -12,9 +12,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/koltyakov/gosip"
-	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 	"github.com/koltyakov/gosip/api"
 	"github.com/koltyakov/gosip/csom"
+
+	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 )
 
 func main() {
@@ -28,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	authCnfg.ReadConfig(*configPath)
+	_ = authCnfg.ReadConfig(*configPath)
 	client := &gosip.SPClient{AuthCnfg: authCnfg}
 	sp := api.NewSP(client)
 	httpClient := api.NewHTTPClient(client)
@@ -39,7 +40,7 @@ func main() {
 	if _, err := sp.Web().Lists().Add(listName, nil); err != nil {
 		log.Fatal(err)
 	}
-	defer list.Delete()
+	defer func() { _ = list.Delete() }()
 
 	// Cache entity
 	entType, err := list.GetEntityType()

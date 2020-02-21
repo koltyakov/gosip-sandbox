@@ -10,9 +10,10 @@ import (
 	"time"
 
 	"github.com/koltyakov/gosip"
-	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 	"github.com/koltyakov/gosip/api"
 	"github.com/radovskyb/watcher"
+
+	"github.com/koltyakov/gosip-sandbox/samples/dynauth"
 )
 
 var (
@@ -82,7 +83,7 @@ func watch(sp *api.SP) {
 	if !skipSync {
 		go func() {
 			start := time.Now()
-			errors := []error{}
+			var errors []error
 			filesNum := 0
 			for path, file := range w.WatchedFiles() {
 				if len(errors) > 10 {
@@ -171,7 +172,7 @@ func uploadFile(sp *api.SP, filePath string) error {
 			return nil
 		}
 	}
-	// Check in a file if it was checke out
+	// Check in a file if it was checked out
 	if file.Data().CheckOutType != 2 {
 		if _, err := sp.Web().GetFile(fileURI).CheckIn("", 2); err != nil {
 			return err

@@ -43,24 +43,24 @@ func main() {
 	if configPath != "" {
 		err := auth.ReadConfig(configPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "unable to read config: %v", err)
+			_, _ = fmt.Fprintf(os.Stderr, "unable to read config: %v", err)
 			os.Exit(1)
 		}
 	}
 
 	authCookie, err := auth.GetAuth()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "unable to authenticate: %v", err)
+		_, _ = fmt.Fprintf(os.Stderr, "unable to authenticate: %v", err)
 		os.Exit(1)
 	}
 
 	if authCookie == "" {
-		fmt.Fprint(os.Stderr, "can't get auth cookie")
+		_, _ = fmt.Fprint(os.Stderr, "can't get auth cookie")
 		os.Exit(1)
 	}
 
 	if outFormat == "raw" {
-		fmt.Fprint(os.Stdout, authCookie)
+		_, _ = fmt.Fprint(os.Stdout, authCookie)
 		os.Exit(0)
 	}
 
@@ -76,5 +76,5 @@ func main() {
 	}
 	json += "}"
 
-	fmt.Fprint(os.Stdout, json)
+	_, _ = fmt.Fprint(os.Stdout, json)
 }
