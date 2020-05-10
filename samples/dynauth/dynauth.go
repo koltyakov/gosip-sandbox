@@ -6,6 +6,7 @@ import (
 	"github.com/koltyakov/gosip"
 	"github.com/koltyakov/gosip/auth/addin"
 	"github.com/koltyakov/gosip/auth/adfs"
+	"github.com/koltyakov/gosip/auth/anon"
 	"github.com/koltyakov/gosip/auth/fba"
 	"github.com/koltyakov/gosip/auth/ntlm"
 	"github.com/koltyakov/gosip/auth/saml"
@@ -43,6 +44,9 @@ func NewAuthCnfg(strategy string, configPath string) (gosip.AuthCnfg, error) {
 		break
 	case "ondemand":
 		auth = &ondemand.AuthCnfg{}
+		break
+	case "anon":
+		auth = &anon.AuthCnfg{}
 		break
 	default:
 		return nil, fmt.Errorf("can't resolve the strategy: %s", strategy)
