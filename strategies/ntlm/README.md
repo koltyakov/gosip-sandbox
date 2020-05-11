@@ -22,7 +22,7 @@ func main() {
 	authCnfg := &strategy.AuthCnfg{
 		SiteURL:  os.Getenv("SPAUTH_SITEURL"),
 		Username: os.Getenv("SPAUTH_USERNAME"),
-    Domain:   os.Getenv("SPAUTH_DOMAIN"),
+		Domain:   os.Getenv("SPAUTH_DOMAIN"),
 		Password: os.Getenv("SPAUTH_PASSWORD"),
 	}
 
