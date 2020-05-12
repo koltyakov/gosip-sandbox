@@ -10,4 +10,4 @@ go run ./samples/sites/main.go -strategy saml -config ./config/private.json
 
 ## Sample
 
-The sample shows how to create, delete Modern Sites and how to check site's provisioning status.
+The sample shows how to create, delete Modern Sites and how to check a site's provisioning status.
