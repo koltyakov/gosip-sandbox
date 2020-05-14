@@ -10,7 +10,7 @@ The use-cases are:
 ## Build
 
 ```bash
-go build -o bin/filesync.exe ./samples/sync/
+go build -o bin/spsync.exe ./samples/sync/
 ```
 
 ## Start process
@@ -20,7 +20,7 @@ Create `./config/private.json` with SAML auth credentials (or any other, but sho
 Run:
 
 ```bash
-bin/filesync.exe -localFolder ./folder/to/watch -spFolder "Style Library"
+bin/spsync.exe -localFolder ./folder/to/watch -spFolder "Style Library"
 ```
 
 Where:
