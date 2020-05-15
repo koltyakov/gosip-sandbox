@@ -5,7 +5,7 @@ See more [https://docs.microsoft.com/.../site-creation-rest](https://docs.micros
 ## Run
 
 ```bash
-go run ./samples/sites/main.go -strategy saml -config ./config/private.json
+go run ./samples/modernSites/main.go -strategy saml -config ./config/private.json
 ```
 
 ## Sample
