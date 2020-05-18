@@ -38,7 +38,6 @@ func main() {
 			RoleAssignments/RoleDefinitionBindings/RoleTypeKind
 		`).
 		Expand(`
-			HasUniqueRoleAssignments,
 			RoleAssignments/Member,
 			RoleAssignments/RoleDefinitionBindings
 		`).
