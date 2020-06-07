@@ -5,6 +5,7 @@ go 1.13
 replace github.com/koltyakov/gosip-sandbox => ./
 
 require (
+	fyne.io/fyne v1.3.0
 	github.com/Azure/go-autorest/autorest v0.10.1 // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.8.3
 	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2
