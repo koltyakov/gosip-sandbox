@@ -1,11 +1,31 @@
 $ConfigPath = "./config/private.onprem-wap-adfs.json";
 
-$ConfigJson = Get-Content -Raw -Path $ConfigPath | ConvertFrom-Json;
-$SiteUrl = $ConfigJson.siteUrl;
-$Domain = ([System.Uri]$SiteUrl).Host -replace '^www\.';
+function Main() {
+  $Context = Get-Context $ConfigPath;
 
-function Get-Context() {
+  # CSOM
+  $web = $Context.Web;
+  $Context.Load($web);
+  $Context.ExecuteQuery();
+
+  Write-Host $web.Title;
+
+  $Context | Format-List;
+
+  # PnP PoSH
+  Connect-PnPOnline -Url $Context.Url -CurrentCredentials;
+  Set-PnPContext -Context $Context;
+
+  Write-Host Get-PnPHomePage;
+}
+
+function Get-Context($ConfigPath) {
+  $ConfigJson = Get-Content -Raw -Path $ConfigPath | ConvertFrom-Json;
+  $SiteUrl = $ConfigJson.siteUrl;
+  $Domain = ([System.Uri]$SiteUrl).Host -replace '^www\.';
+
   $PnPPath = Split-Path -Path (Get-Module -ListAvailable SharePointPnPPowerShell*)[0].Path;
+  Write-Host "Using $PnPPath";
 
   $SpAuthRead = "$PSScriptRoot\bin\wap-auth.exe -configPath $ConfigPath";
   $Cookies = Invoke-Expression $SpAuthRead | ConvertFrom-Json;
@@ -50,23 +70,6 @@ function Get-Context() {
   [Gosip.Auth]::Apply($Context);
 
   $Context;
-}
-
-function Main() {
-  $Context = Get-Context;
-
-  # CSOM
-  $web = $Context.Web;
-  $Context.Load($web);
-  $Context.ExecuteQuery();
-
-  Write-Host $web.Title;
-
-  # PnP PoSH
-  Connect-PnPOnline -Url $SiteUrl -CurrentCredentials; # workaround to ommit creds prompts
-  Set-PnPContext -Context $Context;
-
-  Write-Host Get-PnPHomePage;
 }
 
 Main;
