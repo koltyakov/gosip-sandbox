@@ -10,8 +10,6 @@ function Main() {
 
   Write-Host $web.Title;
 
-  $Context | Format-List;
-
   # PnP PoSH
   Connect-PnPOnline -Url $Context.Url -CurrentCredentials;
   Set-PnPContext -Context $Context;
