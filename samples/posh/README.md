@@ -32,4 +32,8 @@ The `pack` task runs [upx](https://upx.github.io). Which archives a binary with 
 
 ### Invoke-WebRequest
 
-[See more](./auth.ps1)
+[See more](./request.ps1)
+
+### CSOM & PnP PoSH
+
+[See more](./csom.ps1)

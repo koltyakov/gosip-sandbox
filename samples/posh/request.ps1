@@ -12,7 +12,7 @@ $Cookies = Invoke-Expression $SpAuthRead | ConvertFrom-Json;
 
 $Session = New-Object Microsoft.PowerShell.Commands.WebRequestSession;
 
-ForEach($Prop in $Cookies.PSObject.Properties)
+forEach($Prop in $Cookies.PSObject.Properties)
 {
   $Cookie = New-Object System.Net.Cookie;
   $CookieName = $Prop.Name;
