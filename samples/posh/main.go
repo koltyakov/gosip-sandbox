@@ -10,38 +10,28 @@ import (
 )
 
 func main() {
-
-	var siteURL string
-	var username string
-	var password string
-	var relyingParty string
-	var adfsURL string
-	var adfsCookie string
-	var configPath string
-	var outFormat string
-
-	flag.StringVar(&siteURL, "siteUrl", "", "SharePoint Site Url")
-	flag.StringVar(&username, "username", "", "User login")
-	flag.StringVar(&password, "password", "", "User password")
-	flag.StringVar(&relyingParty, "relyingParty", "", "Relying party")
-	flag.StringVar(&adfsURL, "adfsUrl", "", "ADFS Url")
-	flag.StringVar(&adfsCookie, "adfsCookie", "", "ADFS Cookie")
-	flag.StringVar(&configPath, "configPath", "", "Connection config path")
-	flag.StringVar(&outFormat, "outFormat", "json", "Output Format: raw | json")
+	siteURL := flag.String("siteUrl", "", "SharePoint Site Url")
+	username := flag.String("username", "", "User login")
+	password := flag.String("password", "", "User password")
+	relyingParty := flag.String("relyingParty", "", "Relying party")
+	adfsURL := flag.String("adfsUrl", "", "ADFS Url")
+	adfsCookie := flag.String("adfsCookie", "", "ADFS Cookie")
+	configPath := flag.String("configPath", "", "Connection config path")
+	outFormat := flag.String("outFormat", "json", "Output Format: raw | json")
 
 	flag.Parse()
 
 	auth := &adfs.AuthCnfg{
-		SiteURL:      siteURL,
-		Username:     username,
-		Password:     password,
-		RelyingParty: relyingParty,
-		AdfsURL:      adfsURL,
-		AdfsCookie:   adfsCookie,
+		SiteURL:      *siteURL,
+		Username:     *username,
+		Password:     *password,
+		RelyingParty: *relyingParty,
+		AdfsURL:      *adfsURL,
+		AdfsCookie:   *adfsCookie,
 	}
 
-	if configPath != "" {
-		err := auth.ReadConfig(configPath)
+	if *configPath != "" {
+		err := auth.ReadConfig(*configPath)
 		if err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "unable to read config: %v", err)
 			os.Exit(1)
@@ -59,7 +49,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if outFormat == "raw" {
+	if *outFormat == "raw" {
 		_, _ = fmt.Fprint(os.Stdout, authCookie)
 		os.Exit(0)
 	}
