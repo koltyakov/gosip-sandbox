@@ -5,7 +5,7 @@ go 1.13
 replace github.com/koltyakov/gosip-sandbox => ./
 
 require (
-	github.com/Azure/go-autorest/autorest v0.10.1 // indirect
+	github.com/Azure/go-autorest/autorest v0.10.2 // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.8.3
 	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2
 	github.com/ThomsonReutersEikon/go-ntlm v0.0.0-20181130171125-cf23bd1ecf18 // indirect
@@ -15,5 +15,7 @@ require (
 	github.com/koltyakov/lorca v0.1.9-0.20200112132759-701f901adf53
 	github.com/radovskyb/watcher v1.0.7
 	github.com/vadimi/go-http-ntlm v1.0.1
-	golang.org/x/net v0.0.0-20200513185701-a91f0712d120 // indirect
+	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9 // indirect
+	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
+	golang.org/x/sys v0.0.0-20200610111108-226ff32320da // indirect
 )
