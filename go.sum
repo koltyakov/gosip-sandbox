@@ -28,10 +28,8 @@ github.com/Azure/go-autorest/tracing v0.5.0 h1:TRn4WjSnkcSy5AEG3pnbtFSwNtwzjr4VY
 github.com/Azure/go-autorest/tracing v0.5.0/go.mod h1:r/s2XiOKccPW3HrqB+W0TQzfbtp2fGCgRFtBroKn4Dk=
 github.com/Azure/go-ntlmssp v0.0.0-20191115210519-2b2be6cc8ed4 h1:jxtswewdgihgXM6ayHYtISwzkAOaRzyXpgUMamb8mHw=
 github.com/Azure/go-ntlmssp v0.0.0-20191115210519-2b2be6cc8ed4/go.mod h1:chxPXzSsl7ZWRAuOIE23GDNzjWuZquvFlgA8xmpunjU=
-github.com/ThomsonReutersEikon/go-ntlm v0.0.0-20180604201143-51f51a355c40 h1:q76f+r2nGpDJtwFGH0E6ZWl/CFxlQNY5UpSAhcSwPaI=
-github.com/ThomsonReutersEikon/go-ntlm v0.0.0-20180604201143-51f51a355c40/go.mod h1:0eFwySJYxbNw/r8cJ01IeztpJfwrgrmiLtYig80Yvrc=
-github.com/ThomsonReutersEikon/go-ntlm v0.0.0-20181130171125-cf23bd1ecf18 h1:RlOimIFMhxYWS3dkHzqgLjigsn9OC6EOeSBL9dEUmxk=
-github.com/ThomsonReutersEikon/go-ntlm v0.0.0-20181130171125-cf23bd1ecf18/go.mod h1:0eFwySJYxbNw/r8cJ01IeztpJfwrgrmiLtYig80Yvrc=
+github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c h1:/IBSNwUN8+eKzUzbJPqhK839ygXJ82sde8x3ogr6R28=
+github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c/go.mod h1:chxPXzSsl7ZWRAuOIE23GDNzjWuZquvFlgA8xmpunjU=
 github.com/denisbrodbeck/machineid v1.0.1 h1:geKr9qtkB876mXguW2X6TU4ZynleN6ezuMSRhl4D7AQ=
 github.com/denisbrodbeck/machineid v1.0.1/go.mod h1:dJUwb7PTidGDeYyUBmXZ2GphQBbjJCrnectwCyxcUSI=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
@@ -52,8 +50,10 @@ github.com/patrickmn/go-cache v2.1.0+incompatible h1:HRMgzkcYKYpi3C8ajMPV8OFXaaR
 github.com/patrickmn/go-cache v2.1.0+incompatible/go.mod h1:3Qf8kWWT7OJRJbdiICTKqZju1ZixQ/KpMGzzAfe6+WQ=
 github.com/radovskyb/watcher v1.0.7 h1:AYePLih6dpmS32vlHfhCeli8127LzkIgwJGcwwe8tUE=
 github.com/radovskyb/watcher v1.0.7/go.mod h1:78okwvY5wPdzcb1UYnip1pvrZNIVEIh/Cm+ZuvsUYIg=
-github.com/vadimi/go-http-ntlm v1.0.1 h1:tsNFVvQ2XfAgZtQIMiF+x3gqbweeQP1NxiqwCXiEnyA=
-github.com/vadimi/go-http-ntlm v1.0.1/go.mod h1:zdwpQlrr/jJfyPQnpynZtpUw8w8AtpcwwauzTyvpqko=
+github.com/vadimi/go-http-ntlm v1.0.3 h1:o6n2vAtP1MlLT73jIXuQYryIcWzXyMN0SCQWZ2QVLLc=
+github.com/vadimi/go-http-ntlm v1.0.3/go.mod h1:SwhhmybQ4Yn1mC53UPmQ6MCrBX6UvJHlS1Xt89OmM9M=
+github.com/vadimi/go-ntlm v1.0.1 h1:Pi8xmngo7CQQl4Hd8J6rDcxY1LZKwyutTvx4W035Hto=
+github.com/vadimi/go-ntlm v1.0.1/go.mod h1:hPTY60eLSKGj9oUJAB+kZiLs2Cg5eKdH60aLczM9rMg=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37 h1:cg5LA/zNPRzIXIWSCxQW10Rvpy94aQh3LT/ShoCpkHw=
@@ -70,6 +70,6 @@ golang.org/x/sys v0.0.0-20190412213103-97732733099d/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9 h1:YTzHMGlqJu67/uEo1lBv0n3wBXhXNeUbB1XfN2vmTm0=
 golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/sys v0.0.0-20200610111108-226ff32320da h1:bGb80FudwxpeucJUjPYJXuJ8Hk91vNtfvrymzwiei38=
-golang.org/x/sys v0.0.0-20200610111108-226ff32320da/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20200615200032-f1bc736245b1 h1:ogLJMz+qpzav7lGMh10LMvAkM/fAoGlaiiHYiFYdm80=
+golang.org/x/sys v0.0.0-20200615200032-f1bc736245b1/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
