@@ -1,5 +1,5 @@
 # Gosip sandbox
-🍼 Samples, experiments for Gosip client
+🐣 Samples, experiments for Gosip client
 
 > SharePoint authentication, HTTP client & fluent API wrapper for Go (Golang)
 
