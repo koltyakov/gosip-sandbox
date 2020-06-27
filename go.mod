@@ -14,4 +14,5 @@ require (
 	github.com/radovskyb/watcher v1.0.7
 	github.com/vadimi/go-http-ntlm v1.0.3
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect
+	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
 )
