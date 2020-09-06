@@ -9,7 +9,7 @@ import (
 	u "github.com/koltyakov/gosip-sandbox/test/utils"
 )
 
-var cnfgPath = "./config/private.device.json"
+var cnfgPath = "./config/private.azureenv.json"
 
 func TestGettingAuthToken(t *testing.T) {
 	if !h.ConfigExists(cnfgPath) {
