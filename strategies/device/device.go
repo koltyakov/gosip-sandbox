@@ -1,4 +1,5 @@
 // Package device implements AAD Device Auth Flow
+// See more: https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization
 // Amongst supported platform versions are:
 //   - SharePoint Online + Azure
 package device
