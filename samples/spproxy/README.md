@@ -9,7 +9,7 @@ Another scenario could be to put such a server between SharePoint and 3rd party 
 ## Start
 
 ```bash
-go run ./samples/proxy -strategy adfs -config ./config/private.json -port 9090
+go run ./samples/spproxy -strategy adfs -config ./config/private.json -port 9090
 ```
 
 ## HTTPS
@@ -20,5 +20,5 @@ openssl req -new -x509 -sha256 -key ./config/certs/private.key -out ./config/cer
 ```
 
 ```bash
-go run ./samples/proxy -strategy adfs -config ./config/private.onprem-wap-adfs.json -port 443 -sslKey ./config/certs/private.key -sslCert ./config/certs/public.crt
+go run ./samples/spproxy -strategy adfs -config ./config/private.onprem-wap-adfs.json -port 443 -sslKey ./config/certs/private.key -sslCert ./config/certs/public.crt
 ```
