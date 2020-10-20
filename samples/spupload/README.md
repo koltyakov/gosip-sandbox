@@ -1,16 +1,16 @@
-# Folders & Files sync
+# Folders & Files upload
 
-The sample shows how to arrange local directory changes tracking with the corresponding synchronization with SharePoint document library.
+The sample shows how to arrange local directory upload to SharePoint document library.
 
 The use-cases are:
 
 - assets deployment pipelines
-- file-based integrations
+- documents migration
 
 ## Build
 
 ```bash
-go build -o bin/spsync.exe ./samples/spsync/
+go build -o bin/spupload.exe ./samples/spupload/
 ```
 
 ## Start process
@@ -20,7 +20,7 @@ Create `./config/private.json` with SAML auth credentials (or any other, but sho
 Run:
 
 ```bash
-bin/spsync.exe -localFolder ./folder/to/watch -spFolder "Style Library"
+bin/spsync.exe -localFolder ./upload/source/folder -spFolder "Shared Documents"
 ```
 
 Where:
@@ -32,7 +32,7 @@ When applied changes are synced with SharePoint.
 ## All flags description
 
 ```bash
-go run ./samples/spsync/ -h
+go run ./samples/spupload/ -h
 ```
 
 Flag | Description
@@ -40,6 +40,5 @@ Flag | Description
 `-strategy` | string, Auth strategy (default "saml")
 `-config` | string, Config path (default "./config/private.json")
 `-localFolder` | string, Local folder to watch
-`-spFolder` | string, SP folder to sync to (default "SiteAssets")
-`-skipSync` | bool, Skips initial sync of files on startup
-`-watch` | bool, Watch local folder for changes
+`-spFolder` | string, SP folder to sync to (default "Shared Documents")
+`-concurrency` | int, a number of concurrent uploads (default 25)
