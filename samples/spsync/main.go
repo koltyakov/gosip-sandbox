@@ -1,4 +1,4 @@
-// go run ./samples/sync/ -localFolder ./samples/sync/watched
+// go run ./samples/spsync/ -localFolder ./samples/sync/watched
 package main
 
 import (
