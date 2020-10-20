@@ -42,6 +42,15 @@ func main() {
 		log.Fatal(err)
 	}
 	client := &gosip.SPClient{AuthCnfg: authCnfg}
+
+	client.Hooks = &gosip.HookHandlers{
+		OnError: func(e *gosip.HookEvent) {
+			if e.StatusCode == 429 {
+				log.Printf("❌ : Got throttled, now waiting...\n")
+			}
+		},
+	}
+
 	sp := api.NewSP(client)
 
 	web, err := sp.Web().Select("Title").Get()
