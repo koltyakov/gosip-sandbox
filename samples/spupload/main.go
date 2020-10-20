@@ -1,4 +1,4 @@
-// go run ./samples/sync/ -localFolder ./samples/sync/watched
+// go run ./samples/spupload/ -localFolder ./samples/spupload/upload -concurrency 10
 package main
 
 import (
@@ -19,8 +19,7 @@ import (
 var (
 	localFolder string
 	spFolder    string
-	watchMode   bool
-	skipSync    bool
+	concurrency int
 )
 
 func main() {
@@ -28,15 +27,13 @@ func main() {
 	config := flag.String("config", "./config/private.json", "Config path")
 
 	flag.StringVar(&localFolder, "localFolder", "", "Local folder to watch")
-	flag.StringVar(&spFolder, "spFolder", "SiteAssets", "SP folder to sync to")
-
-	flag.BoolVar(&watchMode, "watch", false, "Watch local folder for changes")
-	flag.BoolVar(&skipSync, "skipSync", false, "Skips initial sync of files on startup")
+	flag.IntVar(&concurrency, "concurrency", 25, "Parallel upload factor")
+	flag.StringVar(&spFolder, "spFolder", "Shared Documents", "SP folder to sync to")
 
 	flag.Parse()
 
 	if localFolder == "" {
-		log.Fatalf("no watched folder is provided")
+		log.Fatalf("no upload source folder is provided")
 	}
 
 	// Binding auth & API client
@@ -45,6 +42,15 @@ func main() {
 		log.Fatal(err)
 	}
 	client := &gosip.SPClient{AuthCnfg: authCnfg}
+
+	client.Hooks = &gosip.HookHandlers{
+		OnError: func(e *gosip.HookEvent) {
+			if e.StatusCode == 429 {
+				log.Printf("❌ : Got throttled, now waiting...\n")
+			}
+		},
+	}
+
 	sp := api.NewSP(client)
 
 	web, err := sp.Web().Select("Title").Get()
@@ -52,58 +58,42 @@ func main() {
 		log.Fatalf("can't connect to site, %s\n", err)
 	}
 
-	log.Printf("Watching folder: %s\n", localFolder)
-	log.Printf("Sync target: %s, %s\n", web.Data().Title, spFolder)
+	log.Printf("Upload source: %s\n", localFolder)
+	log.Printf("Upload target: %s, %s\n", web.Data().Title, spFolder)
 
-	watch(sp)
+	run(sp)
 }
 
-func watch(sp *api.SP) {
+func run(sp *api.SP) {
 	w := watcher.New()
+	done := make(chan bool)
 
-	// Watch files and upload/delete on changes
-	if watchMode {
-		go func() {
-			for {
-				select {
-				case event := <-w.Event:
-					if err := sync(sp, event); err != nil {
-						log.Printf("%s\n", err)
+	go func() {
+		start := time.Now()
+		filesNum := 0
+		slots := concurrency
+		for path, file := range w.WatchedFiles() {
+			if !file.IsDir() {
+				filesNum++
+				for slots == 0 {
+					time.Sleep(10 * time.Microsecond)
+				}
+				slots = slots - 1
+				go func(p string, s *int) {
+					if err := uploadFile(sp, p); err != nil {
+						log.Printf("❌ : %s: %s\n", p, err)
 					}
-				case err := <-w.Error:
-					log.Fatalln(err)
-				case <-w.Closed:
-					return
-				}
+					*s = *s + 1
+				}(path, &slots)
 			}
-		}()
-	}
-
-	// Initial files upload on process start
-	if !skipSync {
-		go func() {
-			start := time.Now()
-			var errors []error
-			filesNum := 0
-			for path, file := range w.WatchedFiles() {
-				if len(errors) > 10 {
-					log.Printf("❌ : Too many errors, skipping upload...\n")
-					break
-				}
-				if !file.IsDir() {
-					if err := uploadFile(sp, path); err != nil {
-						errors = append(errors, err)
-						log.Printf("%s: %s\n", path, err)
-					}
-					filesNum++
-				}
-			}
-			log.Printf("📄 🏁 : Full sync of %d file(s) in %s\n", filesNum, time.Since(start))
-			if !watchMode {
-				w.Close()
-			}
-		}()
-	}
+		}
+		for slots != concurrency {
+			time.Sleep(10 * time.Microsecond)
+		}
+		w.Close()
+		log.Printf("📄 🏁 : Upload of %d file(s) took %s\n", filesNum, time.Since(start))
+		done <- true
+	}()
 
 	if err := w.AddRecursive(localFolder); err != nil {
 		log.Fatalln(err)
@@ -112,33 +102,8 @@ func watch(sp *api.SP) {
 	if err := w.Start(time.Millisecond * 100); err != nil {
 		log.Fatalln(err)
 	}
-}
 
-func sync(sp *api.SP, event watcher.Event) error {
-	// Sample shows only basic events flow
-	// fmt.Printf("%s\n", event)
-
-	// Files sync
-	if !event.IsDir() {
-		if event.Op.String() == "WRITE" || event.Op.String() == "CREATE" {
-			return uploadFile(sp, event.Path)
-		}
-		if event.Op.String() == "REMOVE" {
-			return deleteFile(sp, event.Path)
-		}
-	}
-
-	// Folders sync
-	if event.IsDir() {
-		if event.Op.String() == "CREATE" {
-			return createFolder(sp, event.Path)
-		}
-		if event.Op.String() == "REMOVE" {
-			return deleteFolder(sp, event.Path)
-		}
-	}
-
-	return nil
+	<-done
 }
 
 func uploadFile(sp *api.SP, filePath string) error {
@@ -182,38 +147,10 @@ func uploadFile(sp *api.SP, filePath string) error {
 	return nil
 }
 
-func deleteFile(sp *api.SP, filePath string) error {
-	start := time.Now()
-	fileURI := getFileURI(filePath)
-	if err := sp.Web().GetFile(fileURI).Recycle(); err != nil {
-		// Ignore file does not exist errors
-		if strings.Index(err.Error(), "-2146232832, Microsoft.SharePoint.SPException") == -1 {
-			return err
-		}
-	} else {
-		log.Printf("📄 ❌ : %s (%s)\n", fileURI, time.Since(start))
-	}
-	return nil
-}
-
 func createFolder(sp *api.SP, folderPath string) error {
 	folderURI := getFolderURI(folderPath)
 	if _, err := sp.Web().EnsureFolder(folderURI); err != nil {
 		return err
-	}
-	return nil
-}
-
-func deleteFolder(sp *api.SP, folderPath string) error {
-	start := time.Now()
-	folderURI := getFolderURI(folderPath)
-	if err := sp.Web().GetFolder(folderURI).Recycle(); err != nil {
-		// Ignore folder does not exist errors
-		if strings.Index(err.Error(), "404 Not Found") == -1 {
-			return err
-		}
-	} else {
-		log.Printf("📁 ❌ : %s (%s)\n", folderURI, time.Since(start))
 	}
 	return nil
 }

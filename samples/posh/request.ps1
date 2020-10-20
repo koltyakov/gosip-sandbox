@@ -4,15 +4,15 @@ $ConfigJson = Get-Content -Raw -Path $ConfigPath | ConvertFrom-Json;
 $SiteUrl = $ConfigJson.siteUrl;
 $Domain = ([System.Uri]$SiteUrl).Host -replace '^www\.';
 
-$SpAuthRead = "go run ./samples/powershell/main.go -configPath $ConfigPath";
-# Or which is better build and call .exe
+# $SpAuthRead = "go run ./samples/powershell/main.go -configPath $ConfigPath";
+$SpAuthRead = "$PSScriptRoot\bin\wap-auth.exe -configPath $ConfigPath";
 
 $Cookies = Invoke-Expression $SpAuthRead | ConvertFrom-Json;
 # For a long running processes assume cookie refreshing or proxying
 
 $Session = New-Object Microsoft.PowerShell.Commands.WebRequestSession;
 
-ForEach($Prop in $Cookies.PSObject.Properties)
+forEach($Prop in $Cookies.PSObject.Properties)
 {
   $Cookie = New-Object System.Net.Cookie;
   $CookieName = $Prop.Name;

@@ -10,7 +10,7 @@ The use-cases are:
 ## Build
 
 ```bash
-go build -o bin/spsync.exe ./samples/sync/
+go build -o bin/spsync.exe ./samples/spsync/
 ```
 
 ## Start process
@@ -32,7 +32,7 @@ When applied changes are synced with SharePoint.
 ## All flags description
 
 ```bash
-go run ./samples/sync/ -h
+go run ./samples/spsync/ -h
 ```
 
 Flag | Description
