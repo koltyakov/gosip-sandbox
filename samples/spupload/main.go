@@ -82,7 +82,7 @@ func run(sp *api.SP) {
 			time.Sleep(10 * time.Microsecond)
 		}
 		w.Close()
-		log.Printf("📄 🏁 : Full sync of %d file(s) in %s\n", filesNum, time.Since(start))
+		log.Printf("📄 🏁 : Upload took of %d file(s) in %s\n", filesNum, time.Since(start))
 		done <- true
 	}()
 
