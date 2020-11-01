@@ -89,7 +89,7 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 			return
 		}
 
-		fmt.Printf("%s: %s\n", r.Method, endpoint)
+		log.Printf("%s: %s\n", r.Method, endpoint)
 
 		ignoreHeaders := []string{
 			"Referer",
@@ -114,7 +114,7 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 		resp, err := client.Execute(req)
 		if err != nil {
 			message := fmt.Sprintf("unable to request: %v\n", err)
-			fmt.Println(message)
+			log.Println(message)
 			http.Error(w, message, http.StatusBadRequest)
 			return
 		}
