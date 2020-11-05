@@ -20,7 +20,7 @@ Create `./config/private.json` with SAML auth credentials (or any other, but sho
 Run:
 
 ```bash
-bin/spsync.exe -localFolder ./upload/source/folder -spFolder "Shared Documents"
+bin/spupload.exe -localFolder ./upload/source/folder -spFolder "Shared Documents"
 ```
 
 Where:
