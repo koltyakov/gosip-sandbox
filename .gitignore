@@ -1,3 +1,4 @@
 tmp/
 private.*
 config/certs/*.*
+.env
