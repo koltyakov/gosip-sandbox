@@ -39,8 +39,13 @@ func (c *AuthCnfg) ReadConfig(privateFile string) error {
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	data, _ := ioutil.ReadAll(f)
-	return json.Unmarshal(data, &c)
+	byteValue, _ := ioutil.ReadAll(f)
+	return c.ParseConfig(byteValue)
+}
+
+// ParseConfig parses credentials from a provided JSON byte array content
+func (c *AuthCnfg) ParseConfig(byteValue []byte) error {
+	return json.Unmarshal(byteValue, &c)
 }
 
 // WriteConfig writes private config with auth options
@@ -51,7 +56,7 @@ func (c *AuthCnfg) WriteConfig(privateFile string) error {
 }
 
 // GetAuth authenticates, receives access token
-func (c *AuthCnfg) GetAuth() (string, error) {
+func (c *AuthCnfg) GetAuth() (string, int64, error) {
 	u, _ := url.Parse(c.SiteURL)
 
 	// Check cached cookie per host
@@ -65,7 +70,7 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 	if cookies != nil {
 		// Return cached cookie if not expired
 		if !cookies.isExpired() {
-			return cookies.toString(), nil
+			return cookies.toString(), cookies.getExpire(), nil
 		}
 		// Expired, try to refresh
 		cookies, err := c.onDemandAuthFlow(cookies)
@@ -73,36 +78,32 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 			// Cache refreshed cookie
 			_ = c.cacheCookieToDisk(cookies)
 			// Return refreshed token
-			return cookies.toString(), nil
+			return cookies.toString(), cookies.getExpire(), nil
 		}
 		// Failed to refresh, initiating for the device auth flow
 	}
 
 	cookies, err := c.onDemandAuthFlow(nil)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	_ = c.cacheCookieToDisk(cookies)
 
 	cookieCache[u.Host] = cookies
-	return cookies.toString(), nil
+	return cookies.toString(), cookies.getExpire(), nil
 }
 
 // GetSiteURL gets SharePoint siteURL
-func (c *AuthCnfg) GetSiteURL() string {
-	return c.SiteURL
-}
+func (c *AuthCnfg) GetSiteURL() string { return c.SiteURL }
 
 // GetStrategy gets auth strategy name
-func (c *AuthCnfg) GetStrategy() string {
-	return "ondemand"
-}
+func (c *AuthCnfg) GetStrategy() string { return "ondemand" }
 
 // SetAuth authenticates request
 // noinspection ALL
 func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error {
-	authCookie, err := c.GetAuth()
+	authCookie, _, err := c.GetAuth()
 	if err != nil {
 		return err
 	}

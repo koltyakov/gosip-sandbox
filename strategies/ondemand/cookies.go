@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+var (
+	cookiesCheck = []string{"FedAuth", "EdgeAccessCookie"}
+)
+
 // Cookies type
 type Cookies []Cookie
 
@@ -30,9 +34,6 @@ func (cookies *Cookies) toString() string {
 }
 
 func (cookies *Cookies) isExpired() bool {
-	cookiesCheck := []string{
-		"FedAuth", "EdgeAccessCookie",
-	}
 	for _, check := range cookiesCheck {
 		for _, cookie := range *cookies {
 			if cookie.Name == check {
@@ -48,6 +49,21 @@ func (cookies *Cookies) isExpired() bool {
 	return false
 }
 
+func (cookies *Cookies) getExpire() int64 {
+	var exp int64 = -1
+	for _, check := range cookiesCheck {
+		for _, cookie := range *cookies {
+			if cookie.Name == check {
+				e := cookie.getExpire()
+				if exp == -1 || e < exp {
+					exp = e
+				}
+			}
+		}
+	}
+	return exp
+}
+
 func (cookie *Cookie) isExpired() bool {
 	sec, dec := math.Modf(cookie.Expires)
 	expireTime := time.Unix(int64(sec), int64(dec*(1e9)))
@@ -55,6 +71,12 @@ func (cookie *Cookie) isExpired() bool {
 		return false
 	}
 	return true
+}
+
+func (cookie *Cookie) getExpire() int64 {
+	sec, dec := math.Modf(cookie.Expires)
+	expireTime := time.Unix(int64(sec), int64(dec*(1e9)))
+	return expireTime.Unix()
 }
 
 func (cookie *Cookie) toMap() map[string]interface{} {

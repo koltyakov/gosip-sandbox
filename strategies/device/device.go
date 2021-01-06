@@ -45,8 +45,13 @@ func (c *AuthCnfg) ReadConfig(privateFile string) error {
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	data, _ := ioutil.ReadAll(f)
-	return json.Unmarshal(data, &c)
+	byteValue, _ := ioutil.ReadAll(f)
+	return c.ParseConfig(byteValue)
+}
+
+// ParseConfig parses credentials from a provided JSON byte array content
+func (c *AuthCnfg) ParseConfig(byteValue []byte) error {
+	return json.Unmarshal(byteValue, &c)
 }
 
 // WriteConfig writes private config with auth options
@@ -61,7 +66,7 @@ func (c *AuthCnfg) WriteConfig(privateFile string) error {
 }
 
 // GetAuth authenticates, receives access token
-func (c *AuthCnfg) GetAuth() (string, error) {
+func (c *AuthCnfg) GetAuth() (string, int64, error) {
 	u, _ := url.Parse(c.SiteURL)
 	resource := fmt.Sprintf("https://%s", u.Host)
 
@@ -76,14 +81,14 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 	if token != nil {
 		// Return cached token if not expired
 		if !token.Token().IsExpired() {
-			return token.Token().AccessToken, nil
+			return token.Token().AccessToken, token.Token().Expires().Unix(), nil
 		}
 		// Expired, try to refresh
 		if err := token.Refresh(); err == nil {
 			// Cache refreshed token
 			_ = c.cacheTokenToDisk(token)
 			// Return refreshed token
-			return token.Token().AccessToken, nil
+			return token.Token().AccessToken, token.Token().Expires().Unix(), nil
 		}
 		// Failed to refresh, initiating for the device auth flow
 	}
@@ -93,29 +98,25 @@ func (c *AuthCnfg) GetAuth() (string, error) {
 
 	token, err := config.ServicePrincipalToken()
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	_ = c.cacheTokenToDisk(token)
 
 	tokenCache[resource] = token
-	return token.Token().AccessToken, nil
+	return token.Token().AccessToken, token.Token().Expires().Unix(), nil
 }
 
 // GetSiteURL gets SharePoint siteURL
-func (c *AuthCnfg) GetSiteURL() string {
-	return c.SiteURL
-}
+func (c *AuthCnfg) GetSiteURL() string { return c.SiteURL }
 
 // GetStrategy gets auth strategy name
-func (c *AuthCnfg) GetStrategy() string {
-	return "device"
-}
+func (c *AuthCnfg) GetStrategy() string { return "device" }
 
 // SetAuth authenticates request
 // noinspection GoUnusedParameter
 func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error {
-	accessToken, err := c.GetAuth()
+	accessToken, _, err := c.GetAuth()
 	if err != nil {
 		return err
 	}
