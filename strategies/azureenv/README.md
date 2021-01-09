@@ -26,7 +26,7 @@ Follow instructions: https://docs.microsoft.com/en-us/sharepoint/dev/solution-gu
 $certName = "MyCert"
 $password = "MyPassword"
 
-$startDate = Get-Date
+$startDate = (Get-Date).AddDays(-1)
 $endDate = (Get-Date).AddYears(5)
 $securePass = (ConvertTo-SecureString -String $password -AsPlainText -Force)
 

@@ -11,6 +11,18 @@ import (
 
 var cnfgPath = "./config/private.azureenv.json"
 
+/*
+{
+  "siteUrl": "https://contoso.sharepoint.com/sites/site",
+  "env": {
+    "AZURE_TENANT_ID": "1efde0dc-21f5-4d3d-a053-1da762c7838c",
+    "AZURE_CLIENT_ID": "7278fe9b-acd5-4be5-b688-999603560d31",
+    "AZURE_CERTIFICATE_PATH": "./config/certs/MyCert.pfx",
+    "AZURE_CERTIFICATE_PASSWORD": "MyPassword"
+  }
+}
+*/
+
 func TestGettingAuthToken(t *testing.T) {
 	if !h.ConfigExists(cnfgPath) {
 		t.Skip("No auth config provided")

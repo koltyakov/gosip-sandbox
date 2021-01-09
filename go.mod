@@ -17,6 +17,6 @@ require (
 	github.com/vadimi/go-http-ntlm v1.0.3
 	github.com/vadimi/go-ntlm v1.1.0 // indirect
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
-	golang.org/x/sys v0.0.0-20210105210732-16f7687f5001 // indirect
+	golang.org/x/sys v0.0.0-20210108172913-0df2131ae363 // indirect
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
 )

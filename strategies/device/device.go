@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	tokenCache = map[string]*adal.ServicePrincipalToken{}
+	tokenCache = map[string]*adal.ServicePrincipalToken{} // ToDo: Replace with sync.Map
 	crypter    = cpass.Cpass("")
 )
 

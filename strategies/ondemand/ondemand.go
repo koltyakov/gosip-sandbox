@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	cookieCache = map[string]*Cookies{}
+	cookieCache = map[string]*Cookies{} // ToDo: Replace with sync.Map
 	crypter     = cpass.Cpass("")
 )
 

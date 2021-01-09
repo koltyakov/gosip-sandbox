@@ -2,3 +2,5 @@ tmp/
 private.*
 config/certs/*.*
 .env
+*.auth
+.DS_Store
