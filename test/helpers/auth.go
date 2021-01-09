@@ -17,12 +17,13 @@ func CheckAuth(auth gosip.AuthCnfg, cnfgPath string, required []string) error {
 		return err
 	}
 
-	// for _, prop := range required {
-	// 	v := getPropVal(auth, prop)
-	// 	if v == "" {
-	// 		return fmt.Errorf("doesn't contain required property value: %s", prop)
-	// 	}
-	// }
+	for _, prop := range required {
+		v := getPropVal(auth, prop)
+		if v == "" {
+			return fmt.Errorf("doesn't contain required property value: %s", prop)
+		}
+	}
+
 	if err := CheckAuthProps(auth, required); err != nil {
 		return err
 	}

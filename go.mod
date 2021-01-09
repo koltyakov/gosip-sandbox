@@ -13,6 +13,7 @@ require (
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c
 	github.com/koltyakov/gosip v0.0.0-20210106125641-a1603f5f707a
 	github.com/koltyakov/lorca v0.1.9-0.20200112132759-701f901adf53
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/radovskyb/watcher v1.0.7
 	github.com/vadimi/go-http-ntlm v1.0.3
 	github.com/vadimi/go-ntlm v1.1.0 // indirect

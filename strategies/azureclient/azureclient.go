@@ -7,12 +7,14 @@
 package azureclient
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
@@ -88,15 +90,22 @@ func (c *AuthCnfg) GetAuth() (string, int64, error) {
 	u, _ := url.Parse(c.SiteURL)
 	resource := fmt.Sprintf("https://%s", u.Host)
 
-	aadCnfg := auth.NewClientCredentialsConfig(c.ClientID, c.ClientSecret, c.TenantID)
-	aadCnfg.Resource = resource
-	authorizer, err := aadCnfg.Authorizer()
+	config := auth.NewClientCredentialsConfig(c.ClientID, c.ClientSecret, c.TenantID)
+	config.Resource = resource
+
+	authorizer, err := config.Authorizer()
 	if err != nil {
 		return "", 0, err
 	}
-
 	c.authorizer = authorizer
-	return "azure client credentials via go-autorest/autorest/azure/auth", 0, nil
+
+	// token, err := config.ServicePrincipalToken()
+	// if err != nil {
+	// 	return "", 0, err
+	// }
+	// return token.Token().AccessToken, token.Token().Expires().Unix(), nil
+
+	return c.getToken()
 }
 
 // GetSiteURL gets SharePoint siteURL
@@ -108,11 +117,36 @@ func (c *AuthCnfg) GetStrategy() string { return "azureclient" }
 // SetAuth authenticates request
 // noinspection GoUnusedParameter
 func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error {
-	if _, _, err := c.GetAuth(); err != nil {
+	authToken, _, err := c.GetAuth()
+	if err != nil {
 		return err
 	}
-	_, err := c.authorizer.WithAuthorization()(preparer{}).Prepare(req)
+	// _, err := c.authorizer.WithAuthorization()(preparer{}).Prepare(req)
+	req.Header.Set("Authorization", "Bearer "+authToken)
 	return err
+}
+
+// Getting token with prepare for external usage scenarious
+func (c *AuthCnfg) getToken() (string, int64, error) {
+	req, _ := http.NewRequest("GET", c.SiteURL, nil)
+	req, err := c.authorizer.WithAuthorization()(preparer{}).Prepare(req)
+	if err != nil {
+		return "", 0, err
+	}
+	token := strings.Replace(req.Header.Get("Authorization"), "Bearer ", "", 1)
+	tt := strings.Split(token, ".")
+	if len(tt) != 3 {
+		return "", 0, fmt.Errorf("incorrect jwt")
+	}
+	jsonBytes, err := base64.RawURLEncoding.DecodeString(tt[1])
+	if err != nil {
+		return "", 0, fmt.Errorf("can't decode jwt base64 string")
+	}
+	j := struct {
+		Exp int64 `json:"exp"`
+	}{}
+	_ = json.Unmarshal(jsonBytes, &j)
+	return token, j.Exp, nil
 }
 
 // Preparer implements autorest.Preparer interface

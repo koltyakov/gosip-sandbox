@@ -6,6 +6,7 @@
 package azurefile
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -90,7 +91,9 @@ func (c *AuthCnfg) GetAuth() (string, int64, error) {
 	}
 
 	c.authorizer = authorizer
-	return "azure file via go-autorest/autorest/azure/auth", 0, nil
+	// return "azure file via go-autorest/autorest/azure/auth", 0, nil
+
+	return c.getToken()
 }
 
 // GetSiteURL gets SharePoint siteURL
@@ -139,6 +142,29 @@ func (c *AuthCnfg) newAuthorizerWithEnvVars(
 	}
 
 	return authorizer, err
+}
+
+// Getting token with prepare for external usage scenarious
+func (c *AuthCnfg) getToken() (string, int64, error) {
+	req, _ := http.NewRequest("GET", c.SiteURL, nil)
+	req, err := c.authorizer.WithAuthorization()(preparer{}).Prepare(req)
+	if err != nil {
+		return "", 0, err
+	}
+	token := strings.Replace(req.Header.Get("Authorization"), "Bearer ", "", 1)
+	tt := strings.Split(token, ".")
+	if len(tt) != 3 {
+		return "", 0, fmt.Errorf("incorrect jwt")
+	}
+	jsonBytes, err := base64.RawURLEncoding.DecodeString(tt[1])
+	if err != nil {
+		return "", 0, fmt.Errorf("can't decode jwt base64 string")
+	}
+	j := struct {
+		Exp int64 `json:"exp"`
+	}{}
+	_ = json.Unmarshal(jsonBytes, &j)
+	return token, j.Exp, nil
 }
 
 // Preparer implements autorest.Preparer interface
