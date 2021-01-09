@@ -81,18 +81,20 @@ func (c *AuthCnfg) SetMasterkey(masterKey string) { c.masterKey = masterKey }
 
 // GetAuth authenticates, receives access token
 func (c *AuthCnfg) GetAuth() (string, int64, error) {
-	u, _ := url.Parse(c.SiteURL)
-	resource := fmt.Sprintf("https://%s", u.Host)
+	if c.authorizer == nil {
+		u, _ := url.Parse(c.SiteURL)
+		resource := fmt.Sprintf("https://%s", u.Host)
 
-	// authorizer, err := auth.NewAuthorizerFromFile(resource)
-	authorizer, err := c.newAuthorizerWithEnvVars(auth.NewAuthorizerFromFile, resource, c.Env)
-	if err != nil {
-		return "", 0, err
+		// authorizer, err := auth.NewAuthorizerFromFile(resource)
+		authorizer, err := c.newAuthorizerWithEnvVars(auth.NewAuthorizerFromFile, resource, c.Env)
+		if err != nil {
+			return "", 0, err
+		}
+
+		c.authorizer = authorizer
 	}
 
-	c.authorizer = authorizer
 	// return "azure file via go-autorest/autorest/azure/auth", 0, nil
-
 	return c.getToken()
 }
 

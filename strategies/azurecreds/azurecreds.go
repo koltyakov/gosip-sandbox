@@ -96,17 +96,19 @@ func (c *AuthCnfg) SetMasterkey(masterKey string) { c.masterKey = masterKey }
 
 // GetAuth authenticates, receives access token
 func (c *AuthCnfg) GetAuth() (string, int64, error) {
-	u, _ := url.Parse(c.SiteURL)
-	resource := fmt.Sprintf("https://%s", u.Host)
+	if c.authorizer == nil {
+		u, _ := url.Parse(c.SiteURL)
+		resource := fmt.Sprintf("https://%s", u.Host)
 
-	config := auth.NewUsernamePasswordConfig(c.Username, c.Password, c.ClientID, c.TenantID)
-	config.Resource = resource
+		config := auth.NewUsernamePasswordConfig(c.Username, c.Password, c.ClientID, c.TenantID)
+		config.Resource = resource
 
-	authorizer, err := config.Authorizer()
-	if err != nil {
-		return "", 0, err
+		authorizer, err := config.Authorizer()
+		if err != nil {
+			return "", 0, err
+		}
+		c.authorizer = authorizer
 	}
-	c.authorizer = authorizer
 
 	// token, err := config.ServicePrincipalToken()
 	// if err != nil {
