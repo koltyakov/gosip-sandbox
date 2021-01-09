@@ -33,6 +33,13 @@ $securePass = (ConvertTo-SecureString -String $password -AsPlainText -Force)
 .\Create-SelfSignedCertificate.ps1 -CommonName $certName -StartDate $startDate -EndDate $endDate -Password $securePass
 ```
 
+or on a Linux or macOS client via `openssl`:
+
+```bash
+chmod +x ./Create-SelfSignedCertificate.sh
+./Create-SelfSignedCertificate.sh
+```
+
 - New App Registration
 	- Accounts in this organizational directory only
 	- API Permissions -> SharePoint :: Application :: Sites.FullControl.All -> Grant Admin Consent
