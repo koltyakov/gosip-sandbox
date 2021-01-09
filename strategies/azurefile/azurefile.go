@@ -13,10 +13,12 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
 	"github.com/koltyakov/gosip"
+	"github.com/koltyakov/gosip/cpass"
 )
 
 // AuthCnfg - AAD File-Based Auth Flow
@@ -31,6 +33,7 @@ type AuthCnfg struct {
 
 	authorizer  autorest.Authorizer
 	privateFile string
+	masterKey   string
 }
 
 // ReadConfig reads private config with auth options
@@ -50,9 +53,16 @@ func (c *AuthCnfg) ParseConfig(byteValue []byte) error {
 	if err := json.Unmarshal(byteValue, &c); err != nil {
 		return err
 	}
+	crypt := cpass.Cpass(c.masterKey)
 	for key, val := range c.Env {
 		if key == "AZURE_AUTH_LOCATION" || key == "AZURE_CERTIFICATE_PATH" {
 			c.Env[key] = path.Join(path.Dir(c.privateFile), val)
+		}
+		if strings.Contains(strings.ToLower(key), "_password") || strings.Contains(strings.ToLower(key), "_secret") {
+			secret, err := crypt.Decode(val)
+			if err == nil {
+				c.Env[key] = secret
+			}
 		}
 	}
 	return nil
@@ -64,6 +74,9 @@ func (c *AuthCnfg) WriteConfig(privateFile string) error {
 	file, _ := json.MarshalIndent(config, "", "  ")
 	return ioutil.WriteFile(privateFile, file, 0644)
 }
+
+// SetMasterkey defines custom masterkey
+func (c *AuthCnfg) SetMasterkey(masterKey string) { c.masterKey = masterKey }
 
 // GetAuth authenticates, receives access token
 func (c *AuthCnfg) GetAuth() (string, int64, error) {
