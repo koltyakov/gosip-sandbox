@@ -33,7 +33,7 @@ The `start.sh` script detects ngrok public endpoint automatically, compiles and 
 ## Subscribing webhooks to a list
 
 ```bash
-curl http://localhost:8080/api/notification?listName=Site%20Pages
+curl http://localhost:8080/api/subscribe?listName=Site%20Pages
 ```
 
 `listName` parameter receives the display name of an existing list.
