@@ -15,7 +15,7 @@ import (
 	httpntlm "github.com/vadimi/go-http-ntlm"
 )
 
-// AuthCnfg - NTML auth config structure
+// AuthCnfg - NTLM auth config structure
 /* On-Premises config sample:
 {
   "siteUrl": "https://www.contoso.com/sites/test",
