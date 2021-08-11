@@ -12,6 +12,7 @@ import (
 	"github.com/koltyakov/gosip/auth/saml"
 	"github.com/koltyakov/gosip/auth/tmg"
 
+	ntlm2 "github.com/koltyakov/gosip-sandbox/strategies/ntlm"
 	"github.com/koltyakov/gosip-sandbox/strategies/device"
 	"github.com/koltyakov/gosip-sandbox/strategies/ondemand"
 )
@@ -32,6 +33,9 @@ func NewAuthCnfg(strategy string, configPath string) (gosip.AuthCnfg, error) {
 		break
 	case "ntlm":
 		auth = &ntlm.AuthCnfg{}
+		break
+	case "ntlm2":
+		auth = &ntlm2.AuthCnfg{}
 		break
 	case "saml":
 		auth = &saml.AuthCnfg{}
