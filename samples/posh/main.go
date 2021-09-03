@@ -38,7 +38,7 @@ func main() {
 		}
 	}
 
-	authCookie, err := auth.GetAuth()
+	authCookie, _, err := auth.GetAuth()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "unable to authenticate: %v", err)
 		os.Exit(1)
