@@ -21,6 +21,7 @@ var (
 	spFolder    string
 	watchMode   bool
 	skipSync    bool
+	skipPublish bool
 )
 
 func main() {
@@ -32,6 +33,7 @@ func main() {
 
 	flag.BoolVar(&watchMode, "watch", false, "Watch local folder for changes")
 	flag.BoolVar(&skipSync, "skipSync", false, "Skips initial sync of files on startup")
+	flag.BoolVar(&skipPublish, "skipPublish", false, "Skip publishing a major version")
 
 	flag.Parse()
 
@@ -173,15 +175,14 @@ func uploadFile(sp *api.SP, filePath string) error {
 		}
 	}
 	// Check in a file if it was checked out
-	checkInType := -1
 	if file.Data().CheckOutType != 2 {
-		checkInType = 2 // Overwrite version
+		if _, err := sp.Web().GetFile(fileURI).CheckIn("", 2); err != nil {
+			return err
+		}
 	}
-	if file.Data().MinorVersion != 0 {
-		checkInType = 1 // Publish major version
-	}
-	if checkInType != -1 {
-		if _, err := sp.Web().GetFile(fileURI).CheckIn("", checkInType); err != nil {
+	// Publish a file if it has minor version
+	if !skipPublish && file.Data().MinorVersion != 0 {
+		if _, err := sp.Web().GetFile(fileURI).Publish(""); err != nil {
 			return err
 		}
 	}
