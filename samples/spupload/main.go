@@ -122,7 +122,7 @@ func uploadFile(sp *api.SP, filePath string) error {
 	files := sp.Web().GetFolder(folderURI).Files()
 	file, err := files.Add(filepath.Base(filePath), data, true)
 	if err != nil {
-		if strings.Index(err.Error(), "System.IO.DirectoryNotFoundException") != -1 {
+		if strings.Contains(err.Error(), "System.IO.DirectoryNotFoundException") {
 			// Create remote folder
 			if _, err := sp.Web().EnsureFolder(folderURI); err != nil {
 				return err
@@ -138,28 +138,20 @@ func uploadFile(sp *api.SP, filePath string) error {
 		}
 	}
 	// Check in a file if it was checked out
+	checkInType := -1
 	if file.Data().CheckOutType != 2 {
-		if _, err := sp.Web().GetFile(fileURI).CheckIn("", 2); err != nil {
+		checkInType = 2 // Overwrite version
+	}
+	if file.Data().MinorVersion != 0 {
+		checkInType = 1 // Publish major version
+	}
+	if checkInType != -1 {
+		if _, err := sp.Web().GetFile(fileURI).CheckIn("", checkInType); err != nil {
 			return err
 		}
 	}
 	log.Printf("📄 ✔️ : %s (%s)\n", fileURI, time.Since(start))
 	return nil
-}
-
-func createFolder(sp *api.SP, folderPath string) error {
-	folderURI := getFolderURI(folderPath)
-	if _, err := sp.Web().EnsureFolder(folderURI); err != nil {
-		return err
-	}
-	return nil
-}
-
-func getFolderURI(folderPath string) string {
-	lFolder, _ := filepath.Abs(localFolder)
-	relPath, _ := filepath.Rel(lFolder, folderPath)
-	relPath = strings.Replace(relPath, "\\", "/", -1)
-	return spFolder + "/" + relPath
 }
 
 func getFileFolderURI(filePath string) string {

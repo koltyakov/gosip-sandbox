@@ -157,7 +157,7 @@ func uploadFile(sp *api.SP, filePath string) error {
 	files := sp.Web().GetFolder(folderURI).Files()
 	file, err := files.Add(filepath.Base(filePath), data, true)
 	if err != nil {
-		if strings.Index(err.Error(), "System.IO.DirectoryNotFoundException") != -1 {
+		if strings.Contains(err.Error(), "System.IO.DirectoryNotFoundException") {
 			// Create remote folder
 			if _, err := sp.Web().EnsureFolder(folderURI); err != nil {
 				return err
@@ -173,8 +173,15 @@ func uploadFile(sp *api.SP, filePath string) error {
 		}
 	}
 	// Check in a file if it was checked out
+	checkInType := -1
 	if file.Data().CheckOutType != 2 {
-		if _, err := sp.Web().GetFile(fileURI).CheckIn("", 2); err != nil {
+		checkInType = 2 // Overwrite version
+	}
+	if file.Data().MinorVersion != 0 {
+		checkInType = 1 // Publish major version
+	}
+	if checkInType != -1 {
+		if _, err := sp.Web().GetFile(fileURI).CheckIn("", checkInType); err != nil {
 			return err
 		}
 	}
@@ -187,7 +194,7 @@ func deleteFile(sp *api.SP, filePath string) error {
 	fileURI := getFileURI(filePath)
 	if err := sp.Web().GetFile(fileURI).Recycle(); err != nil {
 		// Ignore file does not exist errors
-		if strings.Index(err.Error(), "-2146232832, Microsoft.SharePoint.SPException") == -1 {
+		if !strings.Contains(err.Error(), "-2146232832, Microsoft.SharePoint.SPException") {
 			return err
 		}
 	} else {
@@ -209,7 +216,7 @@ func deleteFolder(sp *api.SP, folderPath string) error {
 	folderURI := getFolderURI(folderPath)
 	if err := sp.Web().GetFolder(folderURI).Recycle(); err != nil {
 		// Ignore folder does not exist errors
-		if strings.Index(err.Error(), "404 Not Found") == -1 {
+		if strings.Contains(err.Error(), "404 Not Found") {
 			return err
 		}
 	} else {
