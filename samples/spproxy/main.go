@@ -71,7 +71,7 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 		}
 
 		endpoint := strings.Replace(authCnfg.GetSiteURL(), siteURL.Path, "", -1) + r.RequestURI
-		if strings.Contains(r.RequestURI, siteURL.Path) == false {
+		if !strings.Contains(r.RequestURI, siteURL.Path) {
 			endpoint = authCnfg.GetSiteURL() + r.RequestURI
 		}
 
@@ -99,7 +99,7 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 		for name, headers := range r.Header {
 			found := false
 			for _, h := range ignoreHeaders {
-				if strings.ToLower(h) == strings.ToLower(name) {
+				if strings.EqualFold(h, name) {
 					found = true
 				}
 			}
