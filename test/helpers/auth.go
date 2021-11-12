@@ -28,7 +28,7 @@ func CheckAuth(auth gosip.AuthCnfg, cnfgPath string, required []string) error {
 		return err
 	}
 
-	if auth.GetStrategy() == "ntlm" {
+	if auth.GetStrategy() == "ntlm2" {
 		return nil
 	}
 
