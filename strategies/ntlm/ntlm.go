@@ -9,10 +9,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"sync"
 
 	"github.com/koltyakov/gosip"
 	"github.com/koltyakov/gosip/cpass"
-	httpntlm "github.com/vadimi/go-http-ntlm"
+	httpntlm "github.com/vadimi/go-http-ntlm/v2"
 )
 
 // AuthCnfg - NTLM auth config structure
@@ -31,6 +32,8 @@ type AuthCnfg struct {
 	Password string `json:"password"` // AD user password
 
 	masterKey string
+	transport httpntlm.NtlmTransport
+	mux       sync.Mutex
 }
 
 // ReadConfig reads private config with auth options
@@ -91,11 +94,23 @@ func (c *AuthCnfg) GetStrategy() string { return "ntlm2" }
 
 // SetAuth authenticate request
 func (c *AuthCnfg) SetAuth(req *http.Request, httpClient *gosip.SPClient) error {
-	httpClient.Transport = &httpntlm.NtlmTransport{
-		Domain:   c.Domain,
-		User:     c.Username,
-		Password: c.Password,
+	// NTLM + Negotiation
+	c.mux.Lock()
+	if c.transport.RoundTripper == nil {
+		c.transport = httpntlm.NtlmTransport{
+			Domain:       c.Domain,
+			User:         c.Username,
+			Password:     c.Password,
+			RoundTripper: &http.Transport{},
+		}
 	}
+	c.mux.Unlock()
+
+	if httpClient.Transport != nil && httpClient.Transport != c.transport {
+		c.transport.RoundTripper = httpClient.Transport // custom transport
+	}
+	httpClient.Transport = c.transport
+
 	req.SetBasicAuth(c.Username, c.Password)
 	return nil
 }
