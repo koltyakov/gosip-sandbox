@@ -138,5 +138,5 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 	(*w).Header().Set("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST, PUT")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	(*w).Header().Set("Access-Control-Allow-Headers", "*")
 }
