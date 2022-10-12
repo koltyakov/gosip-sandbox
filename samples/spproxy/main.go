@@ -63,6 +63,8 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 	client := &gosip.SPClient{AuthCnfg: authCnfg}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+
 		siteURL, err := url.Parse(authCnfg.GetSiteURL())
 		if err != nil {
 			message := fmt.Sprintf("unable to parse site url: %v", err)
@@ -131,4 +133,8 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 
 		_, _ = io.Copy(w, resp.Body)
 	}
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
