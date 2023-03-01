@@ -12,7 +12,7 @@ import (
 // onDemandAuthFlow authenticates using On-Demand flow
 func (c *AuthCnfg) onDemandAuthFlow(initialCookies *Cookies) (*Cookies, error) {
 	startURL := fmt.Sprintf("data:text/html;base64,%s", base64.StdEncoding.EncodeToString([]byte(getStartHTML(c.SiteURL))))
-	ui, err := lorca.New(startURL, "", 480, 430)
+	ui, err := lorca.New(startURL, "", 580, 530)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func getStartHTML(siteURL string) string {
 					}
 					.header {
 						color: #fff;
-						margin-top: 95px;
+						margin-top: 160px;
 					}
 					svg {
 						height: 90px;
