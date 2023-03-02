@@ -9,10 +9,26 @@ import (
 	"github.com/koltyakov/lorca"
 )
 
+// Settings dialog window size
+var dlg = &dimension{
+	Width:  580,
+	Height: 530,
+}
+
 // onDemandAuthFlow authenticates using On-Demand flow
 func (c *AuthCnfg) onDemandAuthFlow(initialCookies *Cookies) (*Cookies, error) {
+	var args []string
+
+	if screen, err := getScreenSize(); err == nil && screen.Height != 0 && screen.Width != 0 {
+		args = append(args, fmt.Sprintf(
+			"--window-position=%d,%d",
+			(screen.Width-dlg.Width)/2,
+			(screen.Height-dlg.Height)/2,
+		))
+	}
+
 	startURL := fmt.Sprintf("data:text/html;base64,%s", base64.StdEncoding.EncodeToString([]byte(getStartHTML(c.SiteURL))))
-	ui, err := lorca.New(startURL, "", 580, 530)
+	ui, err := lorca.New(startURL, "", dlg.Width, dlg.Height, args...)
 	if err != nil {
 		return nil, err
 	}
