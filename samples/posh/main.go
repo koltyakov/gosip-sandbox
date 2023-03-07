@@ -57,12 +57,17 @@ func main() {
 	cookies := strings.Split(authCookie, "; ")
 
 	json := "{"
-	for i, cookie := range cookies {
+	pcnt := 0
+	for _, cookie := range cookies {
 		c := strings.SplitN(cookie, "=", 2)
-		json += fmt.Sprintf("\"%s\":\"%s\"", c[0], c[1])
-		if i+1 < len(cookies) {
+		if len(c) != 2 {
+			continue
+		}
+		if pcnt > 0 {
 			json += ","
 		}
+		json += fmt.Sprintf("\"%s\":\"%s\"", c[0], c[1])
+		pcnt++
 	}
 	json += "}"
 
