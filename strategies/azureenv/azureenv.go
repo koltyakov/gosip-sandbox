@@ -3,8 +3,10 @@
 //   - https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-environment-based-authentication
 //   - https://docs.microsoft.com/en-us/sharepoint/dev/solution-guidance/security-apponly-azuread
 //   - https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal
+//
 // Amongst supported platform versions are:
 //   - SharePoint Online + Azure
+//
 // Azure Environment-Based supported strategies:
 //   - Client credentials (might not work with SharePoint but require a Certificate-based auth)
 //   - Certificate
@@ -16,7 +18,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -52,7 +54,7 @@ func (c *AuthCnfg) ReadConfig(privateFile string) error {
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	byteValue, _ := ioutil.ReadAll(f)
+	byteValue, _ := io.ReadAll(f)
 	return c.ParseConfig(byteValue)
 }
 
@@ -80,7 +82,7 @@ func (c *AuthCnfg) ParseConfig(byteValue []byte) error {
 func (c *AuthCnfg) WriteConfig(privateFile string) error {
 	config := &AuthCnfg{SiteURL: c.SiteURL}
 	file, _ := json.MarshalIndent(config, "", "  ")
-	return ioutil.WriteFile(privateFile, file, 0644)
+	return os.WriteFile(privateFile, file, 0644)
 }
 
 // SetMasterkey defines custom masterkey

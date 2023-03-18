@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -23,7 +23,7 @@ func notificationsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer func() { _ = r.Body.Close() }()
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Printf("error: %s\n", err)
 		return

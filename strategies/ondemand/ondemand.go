@@ -7,7 +7,7 @@ package ondemand
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -39,7 +39,7 @@ func (c *AuthCnfg) ReadConfig(privateFile string) error {
 		return err
 	}
 	defer func() { _ = f.Close() }()
-	byteValue, _ := ioutil.ReadAll(f)
+	byteValue, _ := io.ReadAll(f)
 	return c.ParseConfig(byteValue)
 }
 
@@ -52,7 +52,7 @@ func (c *AuthCnfg) ParseConfig(byteValue []byte) error {
 func (c *AuthCnfg) WriteConfig(privateFile string) error {
 	config := &AuthCnfg{SiteURL: c.SiteURL}
 	file, _ := json.MarshalIndent(config, "", "  ")
-	return ioutil.WriteFile(privateFile, file, 0644)
+	return os.WriteFile(privateFile, file, 0644)
 }
 
 // GetAuth authenticates, receives access token
@@ -141,7 +141,7 @@ func (c *AuthCnfg) cacheCookieToDisk(cookies *Cookies) error {
 	cookieCache = []byte(cookieCacheE)
 
 	_ = os.MkdirAll(tmpDir, os.ModePerm)
-	if err := ioutil.WriteFile(cookieCachePath, cookieCache, 0644); err != nil {
+	if err := os.WriteFile(cookieCachePath, cookieCache, 0644); err != nil {
 		return err
 	}
 	return nil
@@ -151,7 +151,7 @@ func (c *AuthCnfg) cacheCookieToDisk(cookies *Cookies) error {
 func (c *AuthCnfg) getCookieDiskCache() (*Cookies, error) {
 	cookieCachePath := c.getCookieCachePath()
 
-	cookieCache, err := ioutil.ReadFile(cookieCachePath)
+	cookieCache, err := os.ReadFile(cookieCachePath)
 	if err != nil {
 		return nil, err
 	}

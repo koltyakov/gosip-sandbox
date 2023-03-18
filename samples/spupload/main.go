@@ -3,8 +3,8 @@ package main
 
 import (
 	"flag"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -110,7 +110,7 @@ func run(sp *api.SP) {
 
 func uploadFile(sp *api.SP, filePath string) error {
 	start := time.Now()
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
 	}

@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -79,7 +78,7 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 
 		var bodyReader io.Reader = nil
 		if r.Method != "GET" && r.Body != nil {
-			buf, _ := ioutil.ReadAll(r.Body)
+			buf, _ := io.ReadAll(r.Body)
 			bodyReader = bytes.NewReader(buf)
 			r.Body.Close()
 		}
