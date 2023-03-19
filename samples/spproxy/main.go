@@ -42,11 +42,18 @@ func main() {
 
 	client := &gosip.SPClient{AuthCnfg: authCnfg}
 	sp := api.NewSP(client)
-	d, err := sp.Web().Select("Title").Get()
+	d, err := sp.Web().Select("ServerRelativeURL").Get()
 	if err != nil {
 		log.Fatalf("can't request the site, %s\n", err)
 	}
-	log.Printf("Connected to site: %s (%s)\n", authCnfg.GetSiteURL(), d.Data().Title)
+
+	log.Printf("Connected to site: %s\n", authCnfg.GetSiteURL())
+
+	protocol := "http"
+	if sslKey != "" && sslCert != "" {
+		protocol = "https"
+	}
+	log.Printf("Proxy is listening on: %s://localhost:%d%s", protocol, port, d.Data().ServerRelativeURL)
 
 	http.HandleFunc("/", proxyHandler(authCnfg))
 
@@ -63,6 +70,13 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		enableCors(&w)
+
+		// Return 200 as anything else for preflight checks will fail with CORS
+		// https://stackoverflow.com/questions/53298478/has-been-blocked-by-cors-policy-response-to-preflight-request-doesn-t-pass-acce
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 
 		siteURL, err := url.Parse(authCnfg.GetSiteURL())
 		if err != nil {
@@ -92,14 +106,14 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 
 		log.Printf("%s: %s\n", r.Method, endpoint)
 
-		ignoreHeaders := []string{
+		ignoreReqHeaders := []string{
 			"Referer",
 			"Origin",
 		}
 
 		for name, headers := range r.Header {
 			found := false
-			for _, h := range ignoreHeaders {
+			for _, h := range ignoreReqHeaders {
 				if strings.EqualFold(h, name) {
 					found = true
 				}
@@ -116,26 +130,23 @@ func proxyHandler(authCnfg gosip.AuthCnfg) func(w http.ResponseWriter, r *http.R
 		if err != nil {
 			message := fmt.Sprintf("unable to request: %v\n", err)
 			log.Println(message)
-			http.Error(w, message, http.StatusBadRequest)
-			return
+			// Not wrapping a request here, proxying the error as is
 		}
 		defer func() { _ = resp.Body.Close() }()
 
 		for name, headers := range resp.Header {
-			name = strings.ToLower(name)
 			for _, h := range headers {
 				w.Header().Add(name, h)
 			}
 		}
 
 		w.WriteHeader(resp.StatusCode)
-
 		_, _ = io.Copy(w, resp.Body)
 	}
 }
 
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST, PUT")
+	(*w).Header().Set("Access-Control-Allow-Methods", "*")
 	(*w).Header().Set("Access-Control-Allow-Headers", "*")
 }
