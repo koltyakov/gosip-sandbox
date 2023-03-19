@@ -20,11 +20,15 @@ func (c *AuthCnfg) onDemandAuthFlow(initialCookies *Cookies) (*Cookies, error) {
 	var args []string
 
 	if screen, err := getScreenSize(); err == nil && screen.Height != 0 && screen.Width != 0 {
-		args = append(args, fmt.Sprintf(
-			"--window-position=%d,%d",
-			(screen.Width-dlg.Width)/2,
-			(screen.Height-dlg.Height)/2,
-		))
+		args = append(
+			args,
+			fmt.Sprintf(
+				"--window-position=%d,%d",
+				(screen.Width-dlg.Width)/2,
+				(screen.Height-dlg.Height)/2,
+			),
+			"--remote-allow-origins=*", // #6
+		)
 	}
 
 	startURL := fmt.Sprintf("data:text/html;base64,%s", base64.StdEncoding.EncodeToString([]byte(getStartHTML(c.SiteURL))))

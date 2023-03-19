@@ -18,7 +18,7 @@ func getScreenSize() (dimension, error) {
 	}
 
 	// Open Chrome in headless mode
-	ui, err := lorca.New("data:text/html,", "", 0, 0) //, "--headless")
+	ui, err := lorca.New("data:text/html,", "", 0, 0, "--remote-allow-origins=*") //, "--headless")
 	if err != nil {
 		// Can't open Chrome, likely is not installed
 		return screenSize, err
