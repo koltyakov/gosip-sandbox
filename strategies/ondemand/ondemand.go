@@ -29,7 +29,8 @@ var (
 }
 */
 type AuthCnfg struct {
-	SiteURL string `json:"siteUrl"` // SPSite or SPWeb URL, which is the context target for the API calls
+	SiteURL    string             `json:"siteUrl"`    // SPSite or SPWeb URL, which is the context target for the API calls
+	ChromeArgs *map[string]string `json:"chromeArgs"` // Arbitrary parameters to be used with embedded browser (see more: https://www.chromium.org/developers/how-tos/run-chromium-with-flags/, https://peter.sh/experiments/chromium-command-line-switches/)
 }
 
 // ReadConfig reads private config with auth options

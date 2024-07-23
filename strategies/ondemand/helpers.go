@@ -31,6 +31,16 @@ func (c *AuthCnfg) onDemandAuthFlow(initialCookies *Cookies) (*Cookies, error) {
 		)
 	}
 
+	if c.ChromeArgs != nil {
+		for arg, val := range *c.ChromeArgs {
+			// Arg must start with "--" to be a valid Chrome argument
+			if !strings.HasPrefix(arg, "--") {
+				args = append(args, fmt.Sprintf("--%s=%s", arg, val))
+				fmt.Printf("Adding Chrome arg: %s=%s\n", arg, val)
+			}
+		}
+	}
+
 	startURL := fmt.Sprintf("data:text/html;base64,%s", base64.StdEncoding.EncodeToString([]byte(getStartHTML(c.SiteURL))))
 	ui, err := lorca.New(startURL, "", dlg.Width, dlg.Height, args...)
 	if err != nil {
