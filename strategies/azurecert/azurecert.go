@@ -94,7 +94,7 @@ func (c *AuthCnfg) WriteConfig(privateFile string) error {
 		SiteURL:  c.SiteURL,
 		TenantID: c.TenantID,
 		ClientID: c.ClientID,
-		CertPath: c.CertPass,
+		CertPath: c.CertPath,
 		CertPass: secret,
 	}
 	file, _ := json.MarshalIndent(config, "", "  ")
